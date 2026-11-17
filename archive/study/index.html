@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Hanselius Codex</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Fraunces:opsz,wght@9..144,500;9..144,640&display=swap">
+<style>
+/* The Codex, act III: a Seattle study that follows the city's clock. Two books; the visitor chooses. */
+:root{
+  --desk:#221711;
+  --paper:#f5edd8;
+  --paper-deep:#e5d8b8;
+  --ink:#2c2418;
+  --ink-soft:#6b5d46;
+  --leather:#4e1f28;
+  --leather-deep:#35141b;
+  --ivory:#e9ddba;
+  --ivory-deep:#d2c194;
+  --gold:#c9a24b;
+  --pw: clamp(150px, 36vw, 340px);
+  --ph: calc(var(--pw) * 1.45);
+  --display:"Fraunces", Georgia, serif;
+  --serif:"EB Garamond", Georgia, serif;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{
+  background:#16100b;
+  color:var(--paper);
+  font-family:var(--serif);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0;
+}
+
+/* ---------- approach ---------- */
+.track{height:380vh; position:relative}
+.sticky{
+  position:sticky; top:0; height:100vh; overflow:hidden;
+  margin-left:calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  margin-right:calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+}
+.camera{width:100%; height:100%; transform-origin:50% 61%; will-change:transform}
+.camera svg{display:block; width:100%; height:100%}
+
+.overlayui{position:fixed; left:0; right:0; text-align:center; z-index:5; pointer-events:none}
+.hint{
+  bottom:calc(env(safe-area-inset-bottom,0px) + 26px);
+  color:#d8c9a8; font-size:14px; letter-spacing:.06em; transition:opacity .5s ease;
+}
+.hint .arrow{display:block; font-size:18px; animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.openwrap{
+  bottom:calc(env(safe-area-inset-bottom,0px) + 30px);
+  opacity:0; transition:opacity .5s ease;
+  display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
+}
+.openwrap.show{opacity:1; pointer-events:auto}
+.openbtn{
+  pointer-events:auto; font-family:var(--serif); font-size:15.5px; font-weight:600;
+  letter-spacing:.04em; border:none; border-radius:999px; padding:12px 26px; cursor:pointer;
+}
+.openbtn.ap{color:#4a3a10; background:var(--ivory); box-shadow:0 0 40px -8px var(--ivory)}
+.openbtn.ba{color:#f5e6da; background:#6e2a3c; box-shadow:0 0 40px -8px #a14a63}
+.openbtn:hover{filter:brightness(1.08)}
+.titlecard{top:calc(env(safe-area-inset-top,0px) + 20px); transition:opacity .5s ease}
+.titlecard h1{font-family:var(--display); font-weight:640; font-size:clamp(22px,4vw,34px); color:var(--gold); margin:0}
+.titlecard p{margin:4px 0 0; color:#bfae8f; font-size:13.5px}
+
+/* sky controls */
+.ctl{
+  position:fixed; z-index:6;
+  top:calc(env(safe-area-inset-top,0px) + 14px);
+  right:max(16px, env(safe-area-inset-right,0px));
+  display:flex; gap:8px;
+}
+.ctl button{
+  font-family:var(--serif); font-size:12.5px; color:var(--paper);
+  background:#32251a; border:1px solid #5a4a33; border-radius:999px;
+  padding:7px 13px; cursor:pointer;
+}
+.ctl button:hover{border-color:var(--gold); color:var(--gold)}
+
+/* ---------- book mode ---------- */
+.bookmode{
+  position:fixed; inset:0; z-index:20; overflow:auto;
+  background:radial-gradient(130% 100% at 50% 0%, #2e2015 0%, var(--desk) 55%, #16100b 100%);
+  padding:0 max(16px, env(safe-area-inset-left,0px));
+}
+.backbtn{
+  position:fixed; z-index:22;
+  top:calc(env(safe-area-inset-top,0px) + 14px);
+  left:max(16px, env(safe-area-inset-left,0px));
+  font-family:var(--serif); font-size:14px; color:var(--paper);
+  background:#32251a; border:1px solid #5a4a33; border-radius:999px;
+  padding:8px 16px; cursor:pointer;
+}
+.backbtn:hover{border-color:var(--gold); color:var(--gold)}
+.bookhead{text-align:center; padding:56px 0 0}
+.bookhead h2{font-family:var(--display); font-weight:640; color:var(--gold); margin:0 0 4px; font-size:clamp(18px,3.4vw,26px)}
+.bookhead p{margin:0 auto; max-width:36em; color:#bfae8f; font-size:14px}
+.bookhead kbd{
+  font-family:inherit; font-size:12px; border:1px solid #5a4a33; border-bottom-width:2px;
+  border-radius:5px; padding:0 6px; background:#32251a; color:var(--paper);
+}
+.bookstage{display:flex; justify-content:center; align-items:center; padding:26px 0 60px; perspective:2400px}
+.book{
+  position:relative; width:calc(var(--pw) * 2); height:var(--ph);
+  transform-style:preserve-3d; transition:transform .9s cubic-bezier(.3,.7,.25,1);
+}
+.book.closed{transform:translateX(calc(var(--pw) / -2))}
+.leaf{
+  position:absolute; left:50%; top:0; width:var(--pw); height:100%;
+  transform-origin:left center; transform-style:preserve-3d;
+  transition:transform .78s cubic-bezier(.32,.65,.3,1);
+}
+.leaf.flipped{transform:rotateY(-180deg)}
+.face{
+  position:absolute; inset:0;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  overflow:hidden; padding:7.5% 9%;
+  display:flex; flex-direction:column;
+  color:var(--ink); font-size:clamp(9px, 1.85vw, 15.5px); line-height:1.55;
+}
+.face.front{
+  border-radius:0 7px 7px 0;
+  background:linear-gradient(90deg, var(--paper-deep) 0%, var(--paper) 14%);
+  box-shadow:inset -2px 0 6px rgba(60,40,10,.12);
+}
+.face.back{
+  transform:rotateY(180deg); border-radius:7px 0 0 7px;
+  background:linear-gradient(-90deg, var(--paper-deep) 0%, var(--paper) 14%);
+}
+.face.cover{
+  align-items:center; justify-content:center; text-align:center; cursor:pointer;
+}
+.face.cover.cvBa{
+  background:radial-gradient(120% 140% at 30% 20%, #5d2731 0%, var(--leather) 55%, var(--leather-deep) 100%);
+  color:var(--gold); border:1px solid #2a0f15;
+}
+.face.cover.cvAp{
+  background:radial-gradient(120% 140% at 30% 20%, #f2e8ca 0%, var(--ivory) 55%, var(--ivory-deep) 100%);
+  color:#6b531d; border:1px solid #b9a670;
+}
+.cover .frame{border:1.5px solid currentColor; border-radius:4px; padding:12% 10%; width:84%}
+.cover .big{font-family:var(--display); font-weight:640; font-size:clamp(17px,3.4vw,30px); letter-spacing:.1em; margin:0 0 6px}
+.cover .small{font-size:clamp(9px,1.6vw,13px); letter-spacing:.24em; text-transform:uppercase; margin:0; opacity:.85}
+.cover .hint2{margin-top:16%; font-size:clamp(9px,1.5vw,12px); font-style:italic; opacity:.75}
+.chap-no{font-size:clamp(8px,1.4vw,11px); letter-spacing:.3em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 4px}
+h3.chap{font-family:var(--display); font-weight:640; color:var(--ink); font-size:clamp(14px,2.8vw,24px); margin:0 0 .5em; line-height:1.1}
+.face p{margin:0 0 .7em}
+.drop::first-letter{
+  font-family:var(--display); font-size:2.6em; float:left;
+  line-height:.85; padding-right:.08em; color:var(--leather);
+}
+.quotepage{align-items:center; justify-content:center; text-align:center}
+.quotepage .q{font-style:italic; font-size:clamp(11px,2.2vw,19px); color:var(--ink); max-width:14em; margin:0 0 10px}
+.quotepage .orn{color:var(--leather); font-size:clamp(12px,2.4vw,20px)}
+.folio{
+  margin-top:auto; display:flex; justify-content:space-between;
+  font-size:clamp(8px,1.4vw,11px); color:var(--ink-soft); font-variant-numeric:tabular-nums;
+}
+.tab{position:absolute; right:-28px; width:30px; height:9%; transform-style:preserve-3d; cursor:pointer}
+.tab .tf, .tab .tb{
+  position:absolute; inset:0;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  display:flex; align-items:center; justify-content:center;
+  color:#f8f2e2; font-size:9.5px; font-weight:600; letter-spacing:.04em;
+  writing-mode:vertical-rl; text-orientation:mixed;
+  box-shadow:1px 1px 3px rgba(0,0,0,.35);
+}
+.tab .tf{border-radius:0 6px 6px 0}
+.tab .tb{transform:rotateY(180deg); border-radius:6px 0 0 6px; left:-58px}
+.tab:hover .tf, .tab:hover .tb{filter:brightness(1.15)}
+.hot{position:absolute; top:0; height:100%; width:16%; cursor:pointer; z-index:60}
+.hot.prev{left:-1%}
+.hot.next{right:-1%}
+.hot:focus-visible, .openbtn:focus-visible, .backbtn:focus-visible, .ctl button:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+
+/* rain + steam animation */
+.rainline{animation:rainfall 1s linear infinite}
+@keyframes rainfall{0%{transform:translateY(-30px)}100%{transform:translateY(30px)}}
+.steam{animation:steam 3.2s ease-in-out infinite}
+@keyframes steam{0%,100%{opacity:.15; transform:translateY(0)}50%{opacity:.5; transform:translateY(-6px)}}
+@media (prefers-reduced-motion: reduce){
+  .book, .leaf, .hint, .openwrap, .titlecard{transition:none}
+  .hint .arrow, .rainline, .steam{animation:none}
+}
+</style>
+</head>
+<body>
+
+
+<div class="track" id="track">
+  <div class="sticky">
+    <div class="camera" id="camera">
+      <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-label="A Seattle study: a desk with a lamp, two books named Apollo and Bacchus, and a window showing the Space Needle, Elliott Bay and the Olympic mountains.">
+        <defs>
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+            <stop id="skyT" offset="0%" stop-color="#141e38"/>
+            <stop id="skyB" offset="100%" stop-color="#27324e"/>
+          </linearGradient>
+          <linearGradient id="deskG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#6b4527"/><stop offset="100%" stop-color="#4a2d18"/>
+          </linearGradient>
+          <radialGradient id="poolG" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(255,214,140,.5)"/><stop offset="100%" stop-color="rgba(255,214,140,0)"/>
+          </radialGradient>
+          <radialGradient id="roomG" cx="50%" cy="38%" r="85%">
+            <stop offset="0%" stop-color="#4a3a42"/><stop offset="100%" stop-color="#2d2128"/>
+          </radialGradient>
+          <clipPath id="winClip"><rect x="422" y="92" width="356" height="326"/></clipPath>
+        </defs>
+
+        <!-- room -->
+        <rect x="0" y="0" width="1200" height="620" fill="url(#roomG)"/>
+        <rect x="0" y="620" width="1200" height="180" fill="#261813"/>
+        <rect x="0" y="612" width="1200" height="8" fill="#1c1210"/>
+
+        <!-- window: Seattle from the Denny Triangle -->
+        <g>
+          <rect x="408" y="78" width="384" height="354" fill="#2a1b14"/>
+          <g clip-path="url(#winClip)">
+            <rect x="422" y="92" width="356" height="326" fill="url(#skyG)"/>
+            <circle id="sun" cx="690" cy="170" r="20" fill="#f5e0a0" opacity="0" />
+            <g id="moonG"><circle cx="700" cy="150" r="20" fill="#f2e9c8"/><circle cx="693" cy="144" r="18" fill="#141e38" opacity=".5"/></g>
+            <g id="stars" fill="#e8e2c8">
+              <circle cx="460" cy="130" r="2"/><circle cx="520" cy="180" r="1.6"/>
+              <circle cx="590" cy="118" r="1.8"/><circle cx="555" cy="235" r="1.4"/>
+              <circle cx="745" cy="215" r="1.7"/><circle cx="640" cy="260" r="1.3"/>
+            </g>
+            <!-- Olympic mountains -->
+            <path id="mtns" d="M422 316 L462 288 L498 308 L540 278 L577 302 L620 283 L662 300 L706 285 L745 302 L778 292 L778 334 L422 334 Z" fill="#232c44"/>
+            <!-- Elliott Bay -->
+            <rect id="bay" x="422" y="330" width="356" height="42" fill="#1b2a44"/>
+            <line x1="450" y1="344" x2="540" y2="344" stroke="#cfd8e8" stroke-width="1" opacity=".25"/>
+            <line x1="600" y1="356" x2="700" y2="356" stroke="#cfd8e8" stroke-width="1" opacity=".18"/>
+            <!-- skyline -->
+            <g id="cityG">
+              <rect class="bldg" x="430" y="366" width="34" height="52" fill="#161b2b"/>
+              <rect class="bldg" x="470" y="350" width="28" height="68" fill="#161b2b"/>
+              <rect class="bldg" x="560" y="344" width="36" height="74" fill="#161b2b"/>
+              <rect class="bldg" x="602" y="360" width="26" height="58" fill="#161b2b"/>
+              <rect class="bldg" x="668" y="352" width="30" height="66" fill="#161b2b"/>
+              <rect class="bldg" x="704" y="368" width="40" height="50" fill="#161b2b"/>
+              <rect class="bldg" x="750" y="356" width="24" height="62" fill="#161b2b"/>
+              <!-- Space Needle -->
+              <g id="needle">
+                <path class="bldg" d="M516 362 L528 362 L526 418 L518 418 Z" fill="#161b2b"/>
+                <ellipse class="bldg" cx="522" cy="356" rx="22" ry="7" fill="#161b2b"/>
+                <ellipse class="bldg" cx="522" cy="350" rx="12" ry="4" fill="#161b2b"/>
+                <line x1="522" y1="346" x2="522" y2="326" stroke="#161b2b" stroke-width="2.5"/>
+                <circle id="beacon" cx="522" cy="324" r="2" fill="#e05555"/>
+              </g>
+              <g id="cityLit" fill="#ffd68c" opacity="1">
+                <rect x="436" y="374" width="4" height="5"/><rect x="448" y="386" width="4" height="5"/>
+                <rect x="476" y="358" width="4" height="5"/><rect x="486" y="372" width="4" height="5"/>
+                <rect x="568" y="352" width="4" height="5"/><rect x="582" y="366" width="4" height="5"/>
+                <rect x="608" y="368" width="4" height="5"/><rect x="674" y="360" width="4" height="5"/>
+                <rect x="686" y="376" width="4" height="5"/><rect x="712" y="376" width="4" height="5"/>
+                <rect x="728" y="388" width="4" height="5"/><rect x="756" y="364" width="4" height="5"/>
+              </g>
+            </g>
+            <rect id="wxOverlay" x="422" y="92" width="356" height="326" fill="#8c93a0" opacity="0"/>
+            <g id="rainG" stroke="#c9d2e0" stroke-width="1.3" opacity=".55" style="display:none">
+              <line class="rainline" x1="450" y1="100" x2="444" y2="130"/><line class="rainline" x1="500" y1="150" x2="494" y2="180"/>
+              <line class="rainline" x1="548" y1="110" x2="542" y2="140"/><line class="rainline" x1="590" y1="190" x2="584" y2="220"/>
+              <line class="rainline" x1="640" y1="120" x2="634" y2="150"/><line class="rainline" x1="688" y1="170" x2="682" y2="200"/>
+              <line class="rainline" x1="730" y1="110" x2="724" y2="140"/><line class="rainline" x1="470" y1="230" x2="464" y2="260"/>
+              <line class="rainline" x1="620" y1="250" x2="614" y2="280"/><line class="rainline" x1="710" y1="260" x2="704" y2="290"/>
+              <line class="rainline" x1="540" y1="290" x2="534" y2="320"/><line class="rainline" x1="660" y1="310" x2="654" y2="340"/>
+            </g>
+          </g>
+          <rect x="594" y="92" width="12" height="326" fill="#2a1b14"/>
+          <rect x="422" y="248" width="356" height="12" fill="#2a1b14"/>
+          <rect x="398" y="432" width="404" height="16" rx="3" fill="#35221a"/>
+        </g>
+
+        <!-- room dimmer (phase-driven) -->
+        <rect id="roomDim" x="0" y="0" width="1200" height="800" fill="#0a0710" opacity=".22" pointer-events="none"/>
+
+        <!-- remaining blank slots -->
+        <g id="slots" font-family="EB Garamond, Georgia, serif" font-size="15" text-anchor="middle">
+          <g stroke="#c9a24b" stroke-dasharray="7 6" fill="none" opacity=".5">
+            <rect x="120" y="150" width="210" height="270" rx="10"/>
+            <rect x="870" y="150" width="210" height="270" rx="10"/>
+            <ellipse cx="600" cy="726" rx="230" ry="42"/>
+          </g>
+          <g fill="#d8c9a8" opacity=".8">
+            <text x="225" y="290">? wall, left</text>
+            <text x="975" y="290">? wall, right</text>
+            <text x="600" y="732">? rug</text>
+          </g>
+        </g>
+
+        <!-- desk -->
+        <rect x="180" y="530" width="840" height="22" rx="4" fill="url(#deskG)"/>
+        <rect x="186" y="552" width="828" height="10" fill="#3a2314"/>
+        <rect x="212" y="562" width="776" height="126" fill="#422818"/>
+        <rect x="212" y="562" width="776" height="8" fill="#361f11"/>
+
+        <!-- lamp light -->
+        <g id="lampGlow">
+          <ellipse cx="290" cy="528" rx="150" ry="30" fill="url(#poolG)"/>
+          <polygon points="262,414 318,414 380,528 202,528" fill="#ffd68c" opacity=".10"/>
+        </g>
+        <!-- lamp -->
+        <g>
+          <ellipse cx="290" cy="530" rx="42" ry="8" fill="#1f3b31"/>
+          <rect x="286" y="448" width="8" height="82" fill="#27493d"/>
+          <path d="M248 420 L332 420 L314 378 L266 378 Z" fill="#2f6b58"/>
+          <path d="M248 420 L332 420 L326 412 L254 412 Z" fill="#245445"/>
+          <ellipse id="bulb" cx="290" cy="424" rx="34" ry="6" fill="#ffe9b8" opacity=".9"/>
+        </g>
+
+        <!-- pen stand -->
+        <g>
+          <rect x="858" y="478" width="46" height="52" rx="7" fill="#35506b"/>
+          <rect x="858" y="478" width="46" height="8" rx="4" fill="#2a4056"/>
+          <line x1="870" y1="482" x2="862" y2="440" stroke="#c9a24b" stroke-width="3.4" stroke-linecap="round"/>
+          <line x1="882" y1="480" x2="884" y2="434" stroke="#b8552f" stroke-width="3.4" stroke-linecap="round"/>
+          <line x1="894" y1="482" x2="902" y2="442" stroke="#d8d2c2" stroke-width="3.4" stroke-linecap="round"/>
+        </g>
+
+        <!-- desk objects: headphones (back), photo frame (back), mug + fork (front), goggles (front) -->
+        <g>
+          <path d="M585 486 A 30 30 0 0 1 645 486" stroke="#2b2b33" stroke-width="5" fill="none"/>
+          <rect x="580" y="484" width="11" height="17" rx="3" fill="#2b2b33"/>
+          <rect x="639" y="484" width="11" height="17" rx="3" fill="#2b2b33"/>
+        </g>
+        <g transform="rotate(-5 845 490)">
+          <rect x="818" y="452" width="56" height="70" rx="4" fill="#5c3a22"/>
+          <rect x="826" y="460" width="40" height="54" fill="#d9cdb0"/>
+          <text x="846" y="492" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="20" fill="#8a7a58">?</text>
+        </g>
+        <g>
+          <rect x="582" y="506" width="34" height="28" rx="4" fill="#7a3b2e"/>
+          <path d="M616 512 q 12 4 0 14" stroke="#7a3b2e" stroke-width="5" fill="none"/>
+          <path class="steam" d="M594 500 q 5 -10 0 -18 q -5 -8 2 -16" stroke="#e8dcc2" stroke-width="2" fill="none" opacity=".35"/>
+        </g>
+        <g transform="rotate(14 668 522)">
+          <line x1="668" y1="508" x2="668" y2="538" stroke="#c9ccd6" stroke-width="3.4" stroke-linecap="round"/>
+          <line x1="663" y1="498" x2="663" y2="509" stroke="#c9ccd6" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="668" y1="497" x2="668" y2="509" stroke="#c9ccd6" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="673" y1="498" x2="673" y2="509" stroke="#c9ccd6" stroke-width="2.2" stroke-linecap="round"/>
+        </g>
+        <g>
+          <circle cx="332" cy="522" r="9" fill="#2a6a74" stroke="#153840" stroke-width="2.5"/>
+          <circle cx="356" cy="522" r="9" fill="#2a6a74" stroke="#153840" stroke-width="2.5"/>
+          <line x1="341" y1="522" x2="347" y2="522" stroke="#153840" stroke-width="2.5"/>
+          <path d="M323 518 Q 310 508 318 500" stroke="#153840" stroke-width="2" fill="none"/>
+        </g>
+
+        <!-- plant in the floor corner -->
+        <g>
+          <path d="M1078 700 L1132 700 L1123 742 L1087 742 Z" fill="#7a4030"/>
+          <ellipse cx="1092" cy="668" rx="10" ry="26" fill="#3f6a4a" transform="rotate(-24 1092 668)"/>
+          <ellipse cx="1106" cy="658" rx="10" ry="30" fill="#4a7a56"/>
+          <ellipse cx="1120" cy="668" rx="10" ry="26" fill="#386044" transform="rotate(22 1120 668)"/>
+          <ellipse cx="1105" cy="682" rx="8" ry="18" fill="#58886a" transform="rotate(8 1105 682)"/>
+        </g>
+
+        <!-- THE TWO BOOKS -->
+        <g id="apolloBook" style="cursor:pointer" transform="rotate(-2.5 475 495)">
+          <ellipse cx="478" cy="548" rx="104" ry="10" fill="#000" opacity=".32"/>
+          <rect x="394" y="538" width="164" height="8" rx="2" fill="#efe5c9"/>
+          <rect x="390" y="446" width="170" height="92" rx="5" fill="#e9ddba" stroke="#b9a670" stroke-width="2"/>
+          <rect x="402" y="456" width="146" height="72" rx="3" fill="none" stroke="#9a7920" stroke-width="1.4"/>
+          <text x="475" y="488" text-anchor="middle" fill="#6b531d" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="19" letter-spacing="3">APOLLO</text>
+          <text x="475" y="508" text-anchor="middle" fill="#6b531d" font-size="8" letter-spacing="2" opacity=".8" font-family="EB Garamond, Georgia, serif">THE PROFESSIONAL RECORD</text>
+          <g>
+            <rect x="560" y="452" width="15" height="9" rx="2" fill="#9a7920"/>
+            <rect x="560" y="464" width="15" height="9" rx="2" fill="#305a78"/>
+            <rect x="560" y="476" width="15" height="9" rx="2" fill="#4a7a6a"/>
+            <rect x="560" y="488" width="15" height="9" rx="2" fill="#8c3a52"/>
+          </g>
+        </g>
+        <g id="bacchusBook" style="cursor:pointer" transform="rotate(2 725 497)">
+          <ellipse cx="728" cy="550" rx="104" ry="10" fill="#000" opacity=".32"/>
+          <rect x="644" y="540" width="164" height="8" rx="2" fill="#efe5c9"/>
+          <rect x="640" y="448" width="170" height="92" rx="5" fill="#4e1f28" stroke="#35141b" stroke-width="2"/>
+          <rect x="652" y="458" width="146" height="72" rx="3" fill="none" stroke="#c9a24b" stroke-width="1.4"/>
+          <text x="725" y="490" text-anchor="middle" fill="#c9a24b" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="19" letter-spacing="3">BACCHUS</text>
+          <text x="725" y="510" text-anchor="middle" fill="#c9a24b" font-size="8" letter-spacing="2" opacity=".8" font-family="EB Garamond, Georgia, serif">THE CREATIVE DISORDER</text>
+          <g>
+            <rect x="810" y="454" width="15" height="9" rx="2" fill="#7a4a9e"/>
+            <rect x="810" y="466" width="15" height="9" rx="2" fill="#365a3f"/>
+            <rect x="810" y="478" width="15" height="9" rx="2" fill="#a85b26"/>
+            <rect x="810" y="490" width="15" height="9" rx="2" fill="#2a6a74"/>
+            <rect x="810" y="502" width="15" height="9" rx="2" fill="#8c3a52"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="overlayui titlecard" id="titlecard">
+      <h1>The Hanselius Codex</h1>
+      <p>Act III: a Seattle study &middot; the sky follows the city's clock</p>
+    </div>
+    <div class="overlayui hint" id="scrollHint">
+      Scroll to walk to the desk
+      <span class="arrow">&#8595;</span>
+    </div>
+    <div class="overlayui openwrap" id="openWrap">
+      <button class="openbtn ap" id="openApollo">Open APOLLO</button>
+      <button class="openbtn ba" id="openBacchus">Open BACCHUS</button>
+    </div>
+  </div>
+</div>
+
+<div class="ctl">
+  <button id="phaseBtn" title="Preview another time of day">Sky: auto</button>
+  <button id="wxBtn" title="Live weather needs the real site; preview here">Weather: clear</button>
+</div>
+
+<div class="bookmode" id="bookmode" hidden>
+  <button class="backbtn" id="backBtn">&#8592; Back to the desk</button>
+  <div class="bookhead">
+    <h2 id="bookTitle">APOLLO</h2>
+    <p>Pull the fore-edge tabs, click the page edges, or use <kbd>&#8592;</kbd> <kbd>&#8594;</kbd> &middot; <kbd>Esc</kbd> returns to the desk</p>
+  </div>
+  <div class="bookstage">
+    <div class="book closed" id="book"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = false;
+  try { reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){}
+
+  /* ---------- Seattle sky engine ---------- */
+  var PAL = {
+    night:{skyT:"#141e38", skyB:"#27324e", bay:"#1b2a44", mtn:"#232c44", bldg:"#161b2b", lit:1,   sun:0, moon:1, stars:1, dim:.24, lamp:1,   beacon:1},
+    dawn: {skyT:"#4a4668", skyB:"#e0a070", bay:"#6a6a85", mtn:"#464056", bldg:"#2a2a40", lit:.5,  sun:.6, moon:0, stars:0, dim:.12, lamp:.6, beacon:0},
+    day:  {skyT:"#8fb0c6", skyB:"#d9e4ea", bay:"#5f87a0", mtn:"#5a6d85", bldg:"#3c4658", lit:0,   sun:.9, moon:0, stars:0, dim:0,   lamp:.15,beacon:0},
+    dusk: {skyT:"#3a3a62", skyB:"#c86a4a", bay:"#55506e", mtn:"#3c3756", bldg:"#242338", lit:.85, sun:.4, moon:0, stars:0, dim:.14, lamp:.9, beacon:1}
+  };
+  function seattleHour(){
+    try {
+      return parseInt(new Intl.DateTimeFormat("en-US", { hour:"numeric", hour12:false, timeZone:"America/Los_Angeles" }).format(new Date()), 10);
+    } catch(e){ return new Date().getHours(); }
+  }
+  function phaseNow(){
+    var h = seattleHour();
+    if (h >= 21 || h < 6) return "night";
+    if (h < 8) return "dawn";
+    if (h < 16) return "day";
+    return "dusk";
+  }
+  var PHASES = ["auto", "dawn", "day", "dusk", "night"];
+  var WXS = ["clear", "overcast", "rain"];
+  var phaseIdx = 0, wxIdx = 0;
+  function $(id){ return document.getElementById(id); }
+
+  function applySky(){
+    var phase = PHASES[phaseIdx] === "auto" ? phaseNow() : PHASES[phaseIdx];
+    var wx = WXS[wxIdx];
+    var p = PAL[phase];
+    $("skyT").setAttribute("stop-color", p.skyT);
+    $("skyB").setAttribute("stop-color", p.skyB);
+    $("bay").setAttribute("fill", p.bay);
+    $("mtns").setAttribute("fill", p.mtn);
+    var blds = document.querySelectorAll(".bldg");
+    for (var i = 0; i < blds.length; i++){
+      blds[i].setAttribute(blds[i].tagName === "line" ? "stroke" : "fill", p.bldg);
+    }
+    $("sun").setAttribute("opacity", wx === "clear" ? p.sun : p.sun * 0.3);
+    $("moonG").style.display = p.moon ? "" : "none";
+    $("stars").style.display = (p.stars && wx === "clear") ? "" : "none";
+    $("cityLit").setAttribute("opacity", Math.max(p.lit, wx !== "clear" ? 0.4 : 0));
+    $("beacon").style.display = p.beacon ? "" : "none";
+    $("roomDim").setAttribute("opacity", p.dim + (wx === "rain" ? 0.05 : 0));
+    var lamp = Math.max(p.lamp, wx === "clear" ? 0 : 0.85);
+    $("lampGlow").setAttribute("opacity", lamp);
+    $("bulb").setAttribute("opacity", 0.25 + lamp * 0.65);
+    $("wxOverlay").setAttribute("opacity", wx === "clear" ? 0 : (wx === "overcast" ? 0.42 : 0.5));
+    $("rainG").style.display = wx === "rain" ? "" : "none";
+    $("phaseBtn").textContent = "Sky: " + (PHASES[phaseIdx] === "auto" ? "auto (" + phase + ")" : phase);
+    $("wxBtn").textContent = "Weather: " + wx;
+  }
+  $("phaseBtn").addEventListener("click", function(){ phaseIdx = (phaseIdx + 1) % PHASES.length; applySky(); });
+  $("wxBtn").addEventListener("click", function(){ wxIdx = (wxIdx + 1) % WXS.length; applySky(); });
+  applySky();
+  setInterval(applySky, 60000);
+
+  /* ---------- approach: scroll dolly ---------- */
+  var track = $("track"), camera = $("camera"), slots = $("slots");
+  var hint = $("scrollHint"), titlecard = $("titlecard"), openWrap = $("openWrap");
+  var ticking = false;
+
+  function progress(){
+    var rect = track.getBoundingClientRect();
+    var total = rect.height - innerHeight;
+    if (total <= 0) return 1;
+    return Math.min(1, Math.max(0, -rect.top / total));
+  }
+  function render(){
+    ticking = false;
+    var p = progress();
+    var scale = 1 + 2.6 * Math.pow(p, 1.4);
+    camera.style.transform = "scale(" + scale.toFixed(4) + ")";
+    slots.style.opacity = String(Math.max(0, 1 - p * 2.2));
+    hint.style.opacity = p > 0.06 ? "0" : "1";
+    titlecard.style.opacity = p > 0.5 ? "0" : "1";
+    openWrap.classList.toggle("show", p > 0.84);
+  }
+  addEventListener("scroll", function(){
+    if (!ticking){ ticking = true; requestAnimationFrame(render); }
+  }, { passive:true });
+  addEventListener("resize", render);
+  render();
+
+  /* ---------- the two codices ---------- */
+  var AP = {
+    title:"APOLLO", sub:"The professional record", ex:"Ex libris Hanselius", cover:"cvAp",
+    titlePage:"THE PROFESSIONAL RECORD<br>set down in the year MMXXVI,<br>entirely in code.",
+    chapters:[
+      { tab:"About",    color:"#9a7920", no:"Chapter I",  title:"The Author",
+        body:"<p class='drop'>Hansel: app-builder by conviction, professional by daylight. The full account — skills, roles, education — takes this page when the real site ships.</p>",
+        quote:"A career is a melody played one note at a time." },
+      { tab:"Projects", color:"#305a78", no:"Chapter II", title:"Things Shipped",
+        body:"<p class='drop'>Chatter and JamClean, built fast and shipped to real phones. This website is exhibit three, and it is being written in public.</p>",
+        quote:"Software is the only craft where the ink compiles." },
+      { tab:"Journey",  color:"#4a7a6a", no:"Chapter III", title:"The Journey",
+        body:"<p class='drop'>From first build to latest release, told in order. The timeline lands here with dates when Hansel supplies the facts.</p>",
+        quote:"Read backwards it looks planned; it was played by ear." },
+      { tab:"Contact",  color:"#8c3a52", no:"Chapter IV", title:"Letters",
+        body:"<p class='drop'>For recruiters and collaborators: the professional address. Handles land here — one contact page per book, as decreed.</p>",
+        quote:"Write to the author; he answers in business hours." }
+    ]
+  };
+  var BA = {
+    title:"BACCHUS", sub:"The creative disorder", ex:"Ex libris Hanselius", cover:"cvBa",
+    titlePage:"THE CREATIVE DISORDER<br>fermented in the year MMXXVI,<br>entirely in code.",
+    chapters:[
+      { tab:"Music",   color:"#7a4a9e", no:"Chapter I",   title:"Music",
+        body:"<p class='drop'>Written, played, collected like souvenirs. The home key of the whole volume — whatever page you open, this chapter hums under it.</p>",
+        quote:"All the other chapters are arrangements of this one." },
+      { tab:"Choir",   color:"#365a3f", no:"Chapter II",  title:"Choir",
+        body:"<p class='drop'>Sunday harmony, held breaths, and the one chord in rehearsal that makes everything before it worth it.</p>",
+        quote:"Four parts, one breath." },
+      { tab:"Kitchen", color:"#a85b26", no:"Chapter III", title:"The Kitchen",
+        body:"<p class='drop'>Recipes as improvisation: start from the chart, then play by ear. Failures worth retelling are recorded with full honesty.</p>",
+        quote:"A recipe is sheet music you can eat." },
+      { tab:"Water",   color:"#2a6a74", no:"Chapter IV",  title:"Water",
+        body:"<p class='drop'>Laps at dawn in a city that understands rain. The one place the phone can't follow.</p>",
+        quote:"The pool is a rest written into the score." },
+      { tab:"Contact", color:"#8c3a52", no:"Chapter V",   title:"Letters",
+        body:"<p class='drop'>For collaborators in anything unbillable: the creative address. Handles land here too.</p>",
+        quote:"Write to the author; he answers after hours." }
+    ]
+  };
+
+  var bookmode = $("bookmode"), book = $("book"), backBtn = $("backBtn");
+  var leaves = [], N = 0, MAX = 0, spread = 0;
+
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+  function zUpdate(){
+    leaves.forEach(function(lf, idx){
+      lf.style.zIndex = lf.classList.contains("flipped") ? (idx + 1) : (N - idx + 1);
+    });
+  }
+  function setLeaf(idx, flip){
+    var lf = leaves[idx];
+    if (lf.classList.contains("flipped") === flip) return;
+    lf.style.zIndex = N + 10;
+    lf.classList.toggle("flipped", flip);
+    setTimeout(zUpdate, reduced ? 0 : 800);
+  }
+  function goTo(target){
+    target = Math.max(0, Math.min(MAX, target));
+    if (target === spread) return;
+    var dir = target > spread ? 1 : -1;
+    var seq = [];
+    if (dir === 1){ for (var a = spread; a < target; a++) seq.push([a, true]); }
+    else { for (var b = spread - 1; b >= target; b--) seq.push([b, false]); }
+    seq.forEach(function(step, k){
+      setTimeout(function(){ setLeaf(step[0], step[1]); }, reduced ? 0 : k * 130);
+    });
+    spread = target;
+    book.classList.toggle("closed", spread === 0);
+  }
+
+  function buildBook(data){
+    book.innerHTML = "";
+    leaves = [];
+    spread = 0;
+    N = data.chapters.length + 1;
+    MAX = N - 1;
+    book.classList.add("closed");
+    $("bookTitle").textContent = data.title + " — " + data.sub;
+
+    var hp = el("div", "hot prev"); hp.setAttribute("role","button"); hp.setAttribute("aria-label","Previous page"); hp.tabIndex = 0;
+    var hn = el("div", "hot next"); hn.setAttribute("role","button"); hn.setAttribute("aria-label","Next page"); hn.tabIndex = 0;
+    hp.addEventListener("click", function(){ goTo(spread - 1); });
+    hn.addEventListener("click", function(){ goTo(spread + 1); });
+    [hp, hn].forEach(function(h, iH){
+      h.addEventListener("keydown", function(ev){
+        if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); goTo(spread + (iH ? 1 : -1)); }
+      });
+    });
+    book.appendChild(hp); book.appendChild(hn);
+
+    for (var i = 0; i < N; i++){
+      var leaf = el("div", "leaf");
+      var front = el("div", "face front");
+      var back = el("div", "face back");
+      if (i === 0){
+        front.className = "face front cover " + data.cover;
+        front.innerHTML = "<div class='frame'><p class='small'>" + data.ex + "</p><p class='big'>" + data.title + "</p><p class='small'>" + data.sub + "</p><p class='hint2'>— open me —</p></div>";
+        back.className = "face back quotepage";
+        back.innerHTML = "<p class='q' style='font-size:clamp(9px,1.7vw,13px)'>" + data.titlePage + "</p><p class='orn'>&#10087;</p>";
+        front.addEventListener("click", function(){ if (spread === 0) goTo(1); });
+      } else {
+        var ch = data.chapters[i - 1];
+        front.innerHTML = "<p class='chap-no'>" + ch.no + "</p><h3 class='chap'>" + ch.title + "</h3>" + ch.body +
+          "<div class='folio'><span>" + ch.tab + "</span><span>" + (2 * i) + "</span></div>";
+        var nxt = data.chapters[i];
+        back.className = "face back quotepage";
+        if (nxt){
+          back.innerHTML = "<p class='q'>&ldquo;" + nxt.quote + "&rdquo;</p><p class='orn'>&#10087;</p>";
+        } else {
+          back.innerHTML = "<p class='q' style='font-size:clamp(9px,1.7vw,13px)'>Colophon: set in EB Garamond &amp; Fraunces. No images were harmed — none exist.</p><p class='orn'>&#10087;</p>";
+        }
+        var tab = el("div", "tab");
+        tab.style.top = (6 + (i - 1) * 12.5) + "%";
+        tab.innerHTML = "<span class='tf' style='background:" + ch.color + "'>" + ch.tab + "</span>" +
+                        "<span class='tb' style='background:" + ch.color + "'>" + ch.tab + "</span>";
+        (function(target){
+          tab.addEventListener("click", function(ev){ ev.stopPropagation(); goTo(target); });
+        })(i);
+        leaf.appendChild(tab);
+      }
+      leaf.appendChild(front);
+      leaf.appendChild(back);
+      book.appendChild(leaf);
+      leaves.push(leaf);
+    }
+    zUpdate();
+  }
+
+  function openBook(data){
+    buildBook(data);
+    bookmode.hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    backBtn.focus();
+  }
+  function closeBook(){
+    bookmode.hidden = true;
+    document.documentElement.style.overflow = "";
+  }
+  $("openApollo").addEventListener("click", function(){ openBook(AP); });
+  $("openBacchus").addEventListener("click", function(){ openBook(BA); });
+  backBtn.addEventListener("click", closeBook);
+
+  function sceneBookClick(data){
+    if (progress() > 0.8){ openBook(data); }
+    else {
+      var target = track.offsetTop + track.offsetHeight - innerHeight;
+      try { scrollTo({ top: target, behavior: reduced ? "auto" : "smooth" }); }
+      catch(e){ scrollTo(0, target); }
+    }
+  }
+  $("apolloBook").addEventListener("click", function(){ sceneBookClick(AP); });
+  $("bacchusBook").addEventListener("click", function(){ sceneBookClick(BA); });
+
+  addEventListener("keydown", function(ev){
+    if (bookmode.hidden) return;
+    if (ev.key === "ArrowRight") goTo(spread + 1);
+    if (ev.key === "ArrowLeft") goTo(spread - 1);
+    if (ev.key === "Escape") closeBook();
+  });
+})();
+</script>
+
+</body>
+</html>

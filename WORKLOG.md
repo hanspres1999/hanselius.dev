@@ -45,7 +45,25 @@
   the gate ride the same PR (#1) — one click from Hansel merges both; GitHub
   Pages gets enabled right after.
 
+## 2026-11-16 (evening)
+- The Codex concept went through three acts on the demo artifact: (I) a bare
+  3D-flip book with fore-edge tabs; (II) the book on a desk in an evening
+  study with scroll-to-approach; (III) a Seattle study — Denny Triangle window
+  view (Space Needle, Elliott Bay, Olympics), room palette driven by Seattle's
+  real clock with a weather preview toggle, desk objects (mug, fork, goggles,
+  headphones, placeholder photo frame, plant), and TWO books, Apollo and
+  Bacchus, each opening as its own tabbed codex — choosing a book replaces
+  the gate concept.
+- Hansel found the 2D look too simplistic; a Three.js 3D rebuild (act IV) was
+  scoped and approved, then PAUSED: Hansel is hunting for simple-but-good
+  website inspiration first. Act III is archived at `archive/study/`.
+- A requested subtitle change (Apollo "My Professional Side" / Bacchus "My
+  Passionate Side") was applied and then reverted at Hansel's request — the
+  covers already explained the books.
+
 ### Open items
+- Hansel: bring back inspiration links; then decide act IV direction
+  (3D rebuild vs refined simplicity).
 - Hansel: merge PR #1, then enable GitHub Pages (or ask Claude to try the
   Pages API again post-merge).
 - Hansel: GoatCounter account + site code → Claude wires the snippet.
