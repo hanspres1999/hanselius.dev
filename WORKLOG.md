@@ -108,6 +108,15 @@
   Study).
 - README updated to match (scenery, versioning).
 - Closing line under Contact: "Did you spot the orca in the Bay?"
+- Performance pass (Hansel reported choppy rendering), still v1126.17:
+  removed the live `backdrop-filter` blur from all cards (it re-blurred the
+  animating scene on every frame for every card) and made the cards slightly
+  more opaque instead; merged stars (90), tower bodies, lit windows (~290),
+  raindrops (140) and waves (28) into a few combined paths; weather now writes
+  attributes only when values change; the ambient animation is capped at a
+  steady 30 fps (scroll stays at full rate); scene and fly-by layers get
+  their own compositor layers. A simulated 4-minute run showed attribute
+  writes per frame drop from ~125 to ~8, with no runtime errors.
 
 ## PRIORITY TO-DO (single source of truth — keep current)
 1. Fill the draft's todo tags: headline and target roles, confirm Seattle,

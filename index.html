@@ -57,19 +57,18 @@ a:focus-visible, button:focus-visible{outline:2px solid var(--accent); outline-o
 
 /* ---------- Seattle sky: fixed scenery whose time of day follows the scroll ---------- */
 :root{
-  --panel: rgba(250,248,243,.90);
+  --panel: rgba(250,248,243,.94);
 }
-#scene{position:fixed; inset:0; z-index:0; pointer-events:none}
+/* the scene and the fly-by layer each get their own compositor layer, so repainting them never touches the page */
+#scene{position:fixed; inset:0; z-index:0; pointer-events:none; contain:strict; will-change:transform}
 #scene svg{display:block; width:100%; height:100%}
 .page{position:relative; z-index:1}
-#fore{position:fixed; inset:0; z-index:3; pointer-events:none}
+#fore{position:fixed; inset:0; z-index:3; pointer-events:none; contain:strict; will-change:transform}
 #fore svg{display:block; width:100%; height:100%}
 /* the reading column is a stack of separate cards, with open "vistas" between some of them */
 .col{padding-block:10px 40px}
 header.site, .col main > section, .col main > footer{
   background:var(--panel);
-  -webkit-backdrop-filter:blur(10px) saturate(1.1);
-  backdrop-filter:blur(10px) saturate(1.1);
   border-radius:22px;
   box-shadow:0 20px 60px -30px rgba(10,14,30,.45);
   transition:background-color .7s ease, color .7s ease;
@@ -97,8 +96,6 @@ header.site{justify-content:flex-end}
   margin:14px 0 0; padding:18px 30px; text-align:center;
   font-family:var(--display); font-weight:500; font-style:italic; font-size:20px;
   background:var(--panel);
-  -webkit-backdrop-filter:blur(10px) saturate(1.1);
-  backdrop-filter:blur(10px) saturate(1.1);
   border-radius:22px;
   box-shadow:0 20px 60px -30px rgba(10,14,30,.45);
   transition:background-color .7s ease, color .7s ease;
@@ -112,7 +109,7 @@ header.site{justify-content:flex-end}
   .vista{height:26vh}
 }
 body.night{
-  --panel: rgba(14,18,36,.86);
+  --panel: rgba(14,18,36,.92);
   --ink:#eef0f6; --muted:#aab2c8; --line:#2f3756;
   --surface:#1a2038; --accent:#7fc8d3; --gold:#dcb75c;
   --todo-bg:#2b2716; --todo-line:#a98b2f;
@@ -532,11 +529,13 @@ html{scroll-behavior:smooth}
     return n;
   }
 
-  /* stars */
-  var stars = $("stars");
+  /* stars: all 90 drawn as one path, so the browser paints one shape instead of 90 */
+  var starD = "";
   for (var s = 0; s < 90; s++){
-    mk("circle", { cx:(rnd()*1600).toFixed(0), cy:(rnd()*430).toFixed(0), r:(0.6 + rnd()*1.4).toFixed(1) }, stars);
+    var sxp = Math.round(rnd() * 1600), syp = Math.round(rnd() * 430), sr = (0.6 + rnd() * 1.4).toFixed(1);
+    starD += "M" + (sxp - sr) + " " + syp + "a" + sr + " " + sr + " 0 1 0 " + (2 * sr) + " 0a" + sr + " " + sr + " 0 1 0 " + (-2 * sr) + " 0";
   }
+  mk("path", { d:starD }, $("stars"));
 
   /* skyline: towers left and right of the reading column, the Space Needle on the left */
   var city = $("city"), wins = $("windows");
@@ -544,15 +543,19 @@ html{scroll-behavior:smooth}
     [40,70,170],[115,55,120],[175,60,200],[345,50,150],[400,70,230],[475,55,140],
     [1100,60,150],[1165,75,260],[1245,55,190],[1305,80,300],[1390,60,210],[1455,70,250],[1530,70,160]
   ];
+  /* every tower is one path and every lit window is one path (hundreds of rectangles merged into two shapes) */
+  var towerD = "", winD = "";
   towers.forEach(function(t){
     var x = t[0], w = t[1], h = t[2], top = 900 - h;
-    mk("rect", { x:x, y:top, width:w, height:h }, city);
+    towerD += "M" + x + " " + top + "h" + w + "V900h" + (-w) + "Z";
     for (var wy = top + 14; wy < 890; wy += 16){
       for (var wx = x + 8; wx < x + w - 8; wx += 12){
-        if (rnd() < 0.42) mk("rect", { x:wx, y:wy, width:5, height:7 }, wins);
+        if (rnd() < 0.42) winD += "M" + wx + " " + wy + "h5v7h-5Z";
       }
     }
   });
+  mk("path", { d:towerD }, city);
+  mk("path", { d:winD }, wins);
   /* the Space Needle */
   mk("path", { d:"M288 900 L296 470 L304 470 L312 900 Z" }, city);
   mk("path", { d:"M270 900 L296 600 L300 600 L280 900 Z" }, city);
@@ -589,7 +592,7 @@ html{scroll-behavior:smooth}
 
   function paint(p){
     curP = p;
-    $("waves").setAttribute("opacity", (1 - ramp(p, 0.8, 1) * 0.5).toFixed(2));
+    setA($("waves"), "opacity", (1 - ramp(p, 0.8, 1) * 0.5).toFixed(2));
     $("skyTop").setAttribute("stop-color", mixC(C.skyTop, p));
     $("skyBot").setAttribute("stop-color", mixC(C.skyBot, p));
     $("mtn").setAttribute("fill", mixC(C.mtn, p));
@@ -629,6 +632,13 @@ html{scroll-behavior:smooth}
   var actors = [];
   function R(a, b){ return a + Math.random() * (b - a); }
   function ink(){ return curP > 0.8 ? "#0e1224" : (curP > 0.65 ? "#26213a" : "#2b3046"); }
+  /* write an attribute only when its value actually changes */
+  function setA(el, name, val){
+    var c = el._last || (el._last = {});
+    if (c[name] === val) return;
+    c[name] = val;
+    el.setAttribute(name, val);
+  }
   function lerpHex(a, b, k){
     var A = hex(a), B = hex(b);
     return "rgb(" + Math.round(A[0] + (B[0] - A[0]) * k) + "," + Math.round(A[1] + (B[1] - A[1]) * k) + "," + Math.round(A[2] + (B[2] - A[2]) * k) + ")";
@@ -646,11 +656,12 @@ html{scroll-behavior:smooth}
     }
     clouds.push({ el:cg, x:cl * 125 + R(0, 90), y:R(40, 430), v:R(14, 28) });
   }
+  /* rain: 140 drops drawn as a single path that is rebuilt each frame */
   var drops = [];
   for (var dr = 0; dr < 140; dr++){
-    var dl = mk("line", { x1:0, y1:0, x2:-6, y2:22 }, rainG);
-    drops.push({ el:dl, x:Math.random() * 1700, y:Math.random() * 1000, v:R(700, 1000) });
+    drops.push({ x:Math.round(Math.random() * 1700), y:Math.random() * 1000, v:R(700, 1000) });
   }
+  var rainPath = mk("path", { d:"" }, rainG);
   function drawWeather(t){
     var e = t % 90, first = t < 90, cover = 0, rain = 0;
     if (first){
@@ -662,41 +673,51 @@ html{scroll-behavior:smooth}
     }
     weatherCover = cover;
     var night = ramp(curP, 0.6, 0.85);
-    overcast.setAttribute("fill", lerpHex("#8a91a3", "#161b2c", night));
-    overcast.setAttribute("opacity", (cover * 0.7).toFixed(2));
-    gloom.setAttribute("opacity", (cover * 0.22).toFixed(2));
-    celestial.setAttribute("opacity", (1 - cover * 0.85).toFixed(2));
-    cloudG.setAttribute("opacity", cover.toFixed(2));
+    setA(overcast, "opacity", (cover * 0.7).toFixed(2));
+    setA(gloom, "opacity", (cover * 0.22).toFixed(2));
+    setA(celestial, "opacity", (1 - cover * 0.85).toFixed(2));
+    setA(cloudG, "opacity", cover.toFixed(2));
     if (cover > 0.01){
-      cloudG.setAttribute("fill", lerpHex("#b8bfcc", "#262c40", night));
+      setA(overcast, "fill", lerpHex("#8a91a3", "#161b2c", night));
+      setA(cloudG, "fill", lerpHex("#b8bfcc", "#262c40", night));
       clouds.forEach(function(c){
         var x = (c.x + c.v * t) % 2000 - 200;
         c.el.setAttribute("transform", "translate(" + x.toFixed(1) + "," + c.y.toFixed(1) + ")");
       });
     }
-    rainG.setAttribute("opacity", (rain * 0.55).toFixed(2));
+    setA(rainG, "opacity", (rain * 0.55).toFixed(2));
     if (rain > 0.01){
-      rainG.setAttribute("stroke", night > 0.5 ? "#8f9ab8" : "#dfe5f0");
-      drops.forEach(function(d){
-        var y = (d.y + d.v * t) % 1000 - 60;
-        d.el.setAttribute("transform", "translate(" + d.x.toFixed(0) + "," + y.toFixed(0) + ")");
-      });
+      setA(rainG, "stroke", night > 0.5 ? "#8f9ab8" : "#dfe5f0");
+      var rd = "";
+      for (var i = 0; i < drops.length; i++){
+        var d = drops[i];
+        rd += "M" + d.x + " " + Math.round((d.y + d.v * t) % 1000 - 60) + "l-6 22";
+      }
+      rainPath.setAttribute("d", rd);
+    } else {
+      setA(rainPath, "d", "");
     }
   }
 
   /* waves: short strokes drifting across the bay, bigger and faster nearer the viewer */
-  var waves = [];
+  /* three depth bands of waves (far, middle, near), each band drawn as one path */
+  var bands = [0, 1, 2].map(function(b){
+    return { el:mk("path", { d:"", fill:"none", stroke:"#ffffff", "stroke-width":(1.1 + b * 0.7).toFixed(1), "stroke-linecap":"round" }, waveG), ph:b * 2.1, waves:[] };
+  });
   for (var wv = 0; wv < 28; wv++){
     var wy = 650 + Math.pow(Math.random(), 1.3) * 230;
-    var wl = 14 + (wy - 640) * 0.12;
-    var wel = mk("path", { d:"M0 0 q" + (wl / 2).toFixed(1) + " -4 " + wl.toFixed(1) + " 0", fill:"none", stroke:"#ffffff", "stroke-width":(1 + (wy - 640) / 160).toFixed(2), "stroke-linecap":"round" }, waveG);
-    waves.push({ el:wel, x:Math.random() * 1700, y:wy, v:R(4, 12) * (wy - 600) / 200, ph:Math.random() * 6.28 });
+    var band = bands[Math.min(2, Math.floor((wy - 650) / 77))];
+    band.waves.push({ x:Math.random() * 1700, y:Math.round(wy), l:Math.round(14 + (wy - 640) * 0.12), v:R(4, 12) * (wy - 600) / 200 });
   }
   function drawWaves(t){
-    waves.forEach(function(w){
-      var x = (w.x + w.v * t) % 1700 - 50;
-      w.el.setAttribute("transform", "translate(" + x.toFixed(1) + "," + w.y.toFixed(1) + ")");
-      w.el.setAttribute("opacity", (0.18 + 0.14 * Math.sin(t * 0.9 + w.ph)).toFixed(2));
+    bands.forEach(function(b){
+      var d = "";
+      for (var i = 0; i < b.waves.length; i++){
+        var w = b.waves[i];
+        d += "M" + Math.round((w.x + w.v * t) % 1700 - 50) + " " + w.y + "q" + (w.l / 2) + " -4 " + w.l + " 0";
+      }
+      setA(b.el, "d", d);
+      setA(b.el, "opacity", (0.2 + 0.12 * Math.sin(t * 0.9 + b.ph)).toFixed(2));
     });
   }
 
@@ -810,8 +831,11 @@ html{scroll-behavior:smooth}
   function startActors(){
     var t0 = performance.now();
     var nextBird = R(3, 8), nextHeli = R(25, 45), nextOrca = R(10, 20);
-    var last = 0;
+    var last = 0, lastDraw = -1e9;
     function frame(now){
+      /* the ambient scene runs at a steady 30 fps; scrolling is handled separately at full rate */
+      if (now - lastDraw < 32){ requestAnimationFrame(frame); return; }
+      lastDraw = now;
       var t = (now - t0) / 1000;
       if (t - last > 1){ var gap = t - last; nextBird += gap; nextHeli += gap; nextOrca += gap; }
       last = t;
