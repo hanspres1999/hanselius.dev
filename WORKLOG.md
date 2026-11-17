@@ -61,9 +61,35 @@
   Passionate Side") was applied and then reverted at Hansel's request — the
   covers already explained the books.
 
+## 2026-11-16 (night) — PIVOT per docs/website-brief.md
+- Hansel supplied a brief (saved at docs/website-brief.md — READ IT FIRST next
+  session). Direction now: ONE simple employer-first page. Codex/3D shelved.
+- Built the draft: root index.html = Intro / Work (AWS + GMU + featured
+  project Jam Clean with real TestFlight link) / About / Life (choir, cooking,
+  swimming, reading) / Contact. All unknown facts are dashed "todo" chips.
+  Side rails hold dashed slots for Hansel's future side-element ideas
+  (reference: jackiezhang.co.za). Gate archived to archive/gate/.
+- Draft preview artifact: https://claude.ai/artifact/E3266rGY5vkvFaPBS2GvCg
+- Master Plan doc: https://claude.ai/artifact/VGyb54MerKWxTDCNiX7Nby
+
+### PRIORITY TO-DO (in order)
+1. Hansel: merge PR #1 (archive + gate + draft site), then enable GitHub
+   Pages (Settings → Pages → main) → site live at
+   hanspres1999.github.io/hanselius.dev. Claude may retry the Pages API.
+2. Hansel reviews the draft; fill todo chips: headline/roles, Seattle
+   confirm, intro para, contact method, LinkedIn verify.
+3. Jam Clean screenshots + contribution details; add to project card.
+4. Decide: include SSRN paper or drop the note.
+5. Life stories + photos (one per interest to start); photo-frame set too.
+6. GoatCounter account (code → Claude wires snippet on every page).
+7. Side elements / parallax / click-sketches (after content is real).
+8. Later queue: Bacchus-style creative expansion, backend (Flask), mobile
+   dashboard app, wedding 2027 site — all specced in the Master Plan doc.
+
 ### Open items
 - Hansel: bring back inspiration links; then decide act IV direction
-  (3D rebuild vs refined simplicity).
+  (3D rebuild vs refined simplicity). [superseded by the brief's direction —
+  keep only if he still wants the showpiece later]
 - Hansel: merge PR #1, then enable GitHub Pages (or ask Claude to try the
   Pages API again post-merge).
 - Hansel: GoatCounter account + site code → Claude wires the snippet.
