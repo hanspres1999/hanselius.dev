@@ -85,6 +85,7 @@
   via a one-line merge Hansel runs. Adding
   `{"worktree":{"bgIsolation":"none"}}` to `.claude/settings.json` lets
   future sessions commit to `main` directly.
+- Added a visible "Work in progress" notice at the top of the site (17 Nov).
 
 ## PRIORITY TO-DO (single source of truth — keep current)
 1. Fill the draft's todo tags: headline and target roles, confirm Seattle,
@@ -99,5 +100,3 @@
 7. Decide final name / custom domain ("hanselius.dev" is a working title).
 8. Later: free backend (Flask assumed), mobile dashboard app, wedding 2027
    site — specced in the Master Plan doc.
-
-- Added a visible "Work in progress" notice at the top of the site (17 Nov).
