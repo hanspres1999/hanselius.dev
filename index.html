@@ -3,976 +3,321 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hansel in Seven Notes</title>
+<title>Hansel Saldanha</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=Outfit:wght@400;500;600&display=swap">
 <style>
-/* Layout: a 3D concert hall — the low-poly orchestra on stage IS the menu; an overture veil opens the page */
+/* Simple first site, per docs/website-brief.md: readable centre column, side slots reserved for later. Committed light look. */
 :root{
-  --bg:#0d0b16;
-  --surface:#171329;
-  --line:#2b2443;
-  --fg:#f0ebe1;
-  --muted:#a99fbd;
-  --accent:#e6b655;
-  --accent-deep:#8f6dff;
+  --bg:#f7f5f0;
+  --surface:#ffffff;
+  --ink:#22211c;
+  --muted:#6d685c;
+  --line:#e2ddd0;
+  --accent:#2a6a74;
+  --gold:#9a7920;
+  --todo-bg:#fdf6e3;
+  --todo-line:#d8b44a;
   --display:"Fraunces", Georgia, serif;
   --body:"Outfit", -apple-system, "Helvetica Neue", Arial, sans-serif;
-  color-scheme: dark;
 }
 *{box-sizing:border-box}
 body{
-  background:var(--bg);
-  color:var(--fg);
-  font-family:var(--body);
-  font-size:16px;
-  line-height:1.6;
+  background:var(--bg); color:var(--ink);
+  font-family:var(--body); font-size:16.5px; line-height:1.65;
   padding-left:max(16px, env(safe-area-inset-left, 0px));
   padding-right:max(16px, env(safe-area-inset-right, 0px));
   padding-block:0;
 }
-main{position:relative; z-index:1; max-width:1040px; margin:0 auto}
+a{color:var(--accent)}
+a:focus-visible, button:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+.skip{position:absolute; left:-999px; top:8px; background:var(--surface); padding:8px 14px; border-radius:8px; z-index:99}
+.skip:focus{left:16px}
 
-/* ---------- overture veil ---------- */
-.veil{
-  position:fixed; inset:0; z-index:6;
-  display:grid; place-items:center; text-align:center;
-  background:rgba(13,11,22,.55);
-  -webkit-backdrop-filter:blur(16px) saturate(.85);
-  backdrop-filter:blur(16px) saturate(.85);
-  transition:opacity .9s ease;
+.page{
+  display:grid;
+  grid-template-columns:1fr min(680px, 100%) 1fr;
+  gap:0 28px;
 }
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
-  .veil{background:rgba(13,11,22,.94)}
-}
-.veil.gone{opacity:0; pointer-events:none}
-.veil .inner{padding:0 24px}
-.veil .eyebrow{margin-bottom:10px}
-.veil h2{font-family:var(--display); font-weight:640; font-size:clamp(34px,7vw,56px); margin:0 0 8px; text-wrap:balance}
-.veil p{color:var(--muted); max-width:30em; margin:0 auto; font-size:15.5px}
-.startbtn{
-  margin-top:26px; display:inline-flex; align-items:center; gap:12px;
-  font:inherit; font-weight:600; font-size:17px; color:var(--bg);
-  background:var(--accent); border:none; border-radius:999px;
-  padding:16px 34px; cursor:pointer;
-  box-shadow:0 0 60px -10px var(--accent);
-}
-.startbtn:hover{filter:brightness(1.08)}
-.startbtn svg{display:block}
-.skiplink{
-  display:block; margin-top:16px; color:var(--muted); font-size:13px;
-  background:none; border:none; font-family:inherit; cursor:pointer; text-decoration:underline;
-}
-.skiplink:hover{color:var(--fg)}
+.col{grid-column:2}
 
-/* ---------- hero ---------- */
-.hero{padding:48px 0 4px; text-align:center}
-.eyebrow{font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin:0 0 14px}
-h1{font-family:var(--display); font-weight:640; font-size:clamp(42px,8vw,84px); line-height:.95; margin:0; text-wrap:balance}
-.hero p.sub{max-width:36em; margin:16px auto 0; color:var(--muted); font-size:17px}
+/* side rails: reserved slots, desktop only */
+.rail{display:none}
+@media (min-width:1150px){
+  .rail{display:block; padding-top:140px}
+  .rail-inner{position:sticky; top:40px; display:flex; flex-direction:column; gap:22px}
+  .rail.left{grid-column:1; justify-self:end; width:180px}
+  .rail.right{grid-column:3; justify-self:start; width:180px}
+}
+.slot{
+  border:1.5px dashed var(--todo-line); border-radius:12px;
+  background:var(--todo-bg); color:#8a7a3e;
+  font-size:12.5px; line-height:1.45; padding:12px 14px; text-align:center;
+}
+.slot svg{display:block; margin:0 auto 8px; stroke:#8a7a3e; fill:none; stroke-width:1.6; stroke-linecap:round}
 
-/* ---------- 3D stage ---------- */
-.stage-wrap{padding-block:14px}
-#stage3d{position:relative; width:100%; border-radius:16px; overflow:hidden}
-#stage3d canvas{display:block; width:100%; height:100%}
-.caption-bar{
-  text-align:center; min-height:52px; padding:10px 0 0;
-  display:flex; flex-direction:column; align-items:center; gap:2px;
+/* header */
+header.site{
+  padding:26px 0 0; display:flex; justify-content:space-between; align-items:baseline;
+  flex-wrap:wrap; gap:8px 18px;
 }
-.caption-bar .cap-name{font-family:var(--display); font-size:19px; font-weight:640; color:var(--accent)}
-.caption-bar .cap-role{font-size:13.5px; color:var(--muted)}
-.stage-hint{text-align:center; color:var(--muted); font-size:13px; margin:8px 0 0}
-.stage-hint kbd{
-  font-family:var(--body); font-size:12px; color:var(--fg);
-  border:1px solid var(--line); border-bottom-width:2px; border-radius:5px;
-  padding:0 6px; background:var(--surface);
+.wordmark{font-family:var(--display); font-weight:640; font-size:19px; color:var(--ink); text-decoration:none}
+nav.site a{
+  color:var(--muted); text-decoration:none; font-size:14.5px; font-weight:500; margin-left:16px;
 }
-.tuttirow{text-align:center; margin-top:16px}
-.playbtn{
-  display:inline-flex; align-items:center; gap:10px;
-  font:inherit; font-weight:600; font-size:15px; color:var(--bg);
-  background:var(--accent); border:none; border-radius:999px;
-  padding:12px 26px; cursor:pointer;
-}
-.playbtn:hover{filter:brightness(1.08)}
-.playbtn:disabled{opacity:.45; cursor:default}
-.playbtn:focus-visible, .startbtn:focus-visible, .skiplink:focus-visible, .soundtoggle:focus-visible, a:focus-visible{
-  outline:2px solid var(--accent); outline-offset:3px;
-}
-.playbtn svg{display:block}
+nav.site a:hover{color:var(--accent)}
 
-/* ---------- tracks ---------- */
-.tracks{padding:64px 0 24px; display:flex; flex-direction:column; gap:14px}
-.tracks h2{font-family:var(--display); font-weight:640; font-size:clamp(28px,5vw,40px); margin:0 0 10px; text-wrap:balance}
-.track{
-  display:flex; gap:18px; align-items:flex-start;
-  background:var(--surface); border:1px solid var(--line); border-radius:14px;
-  padding:20px 22px; scroll-margin-top:24px;
-  transition:border-color .5s ease, box-shadow .5s ease;
+/* intro */
+.intro{padding:72px 0 10px}
+h1{
+  font-family:var(--display); font-weight:640; line-height:1.02;
+  font-size:clamp(40px,7.5vw,64px); margin:0 0 14px; text-wrap:balance;
 }
-.track.lit{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), 0 8px 40px -16px var(--accent)}
+.headline{font-size:19px; color:var(--muted); max-width:30em; margin:0 0 18px}
+.intro p{max-width:36em}
+
+/* placeholders */
+.todo{
+  display:inline-block; vertical-align:baseline;
+  border:1.5px dashed var(--todo-line); border-radius:8px;
+  background:var(--todo-bg); color:#8a6d1c;
+  font-size:.82em; padding:1px 9px; white-space:nowrap;
+}
+.todo-block{
+  border:1.5px dashed var(--todo-line); border-radius:12px;
+  background:var(--todo-bg); color:#8a6d1c;
+  padding:16px 18px; font-size:14.5px;
+}
+
+/* sections */
+section{padding:46px 0 8px}
+.kicker{
+  font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold); margin:0 0 6px; font-weight:600;
+}
+h2{font-family:var(--display); font-weight:640; font-size:clamp(26px,4.5vw,36px); margin:0 0 16px; text-wrap:balance}
+h3{font-family:var(--display); font-weight:640; font-size:20px; margin:26px 0 8px}
+section p{max-width:38em}
+.rule{border:none; border-top:1px solid var(--line); margin:40px 0 0}
+
+/* work entries */
+.entry{padding:4px 0 6px}
+.entry .where{font-weight:600}
+.entry .what{color:var(--muted); font-size:15.5px; max-width:38em}
+
+/* project card */
+.project{
+  background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  padding:24px 26px; margin-top:18px;
+}
+.project .tagline{font-size:17px; margin-top:2px}
+.badges{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 2px}
 .badge{
-  flex:none; width:52px; height:52px; border-radius:12px;
-  display:grid; place-items:center; text-align:center;
-  font-family:var(--display); font-weight:640; font-size:22px;
-  color:var(--accent); background:color-mix(in oklab, var(--accent) 12%, var(--surface));
-  border:1px solid color-mix(in oklab, var(--accent) 35%, var(--line));
+  font-size:12px; font-weight:600; letter-spacing:.04em;
+  border:1px solid var(--line); border-radius:999px; padding:3px 11px; color:var(--muted);
 }
-.track .body{min-width:0}
-.track .trk{font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin:0 0 2px}
-.track h3{font-family:var(--display); font-weight:640; font-size:22px; margin:0 0 6px}
-.track p{margin:0; color:var(--muted); font-size:15px}
+.project ul{margin:12px 0; padding-left:20px}
+.project li{margin-bottom:6px}
+.cta{
+  display:inline-block; margin-top:8px; font-weight:600; font-size:15px;
+  color:#fff; background:var(--accent); border-radius:999px;
+  padding:11px 22px; text-decoration:none;
+}
+.cta:hover{filter:brightness(1.08)}
+.shots{display:flex; gap:14px; margin-top:16px; flex-wrap:wrap}
+.shots .todo-block{flex:1 1 150px; min-width:140px; aspect-ratio:9/16; max-width:180px;
+  display:flex; align-items:center; justify-content:center; text-align:center}
 
-/* ---------- socials / footer ---------- */
-.socials{padding:36px 0 20px; text-align:center}
-.socials .row{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:16px}
-.socials a{
-  display:inline-flex; align-items:center; gap:8px;
-  color:var(--fg); text-decoration:none; font-size:14px; font-weight:500;
+/* life */
+.life-item{display:flex; gap:16px; align-items:flex-start; margin-top:22px}
+.life-item svg{flex:none; width:40px; height:40px; stroke:var(--accent); fill:none; stroke-width:1.7; stroke-linecap:round; margin-top:4px}
+.life-item h3{margin:0 0 6px}
+.life-item p{margin:0 0 8px; color:var(--ink)}
+.life-item .what{color:var(--muted); font-size:15px}
+
+/* contact + footer */
+.links{display:flex; gap:12px; flex-wrap:wrap; margin-top:14px}
+.links a{
+  display:inline-block; text-decoration:none; font-weight:500; font-size:15px;
   border:1px solid var(--line); border-radius:999px; padding:9px 18px;
-  background:var(--surface);
+  background:var(--surface); color:var(--ink);
 }
-.socials a:hover{border-color:var(--accent); color:var(--accent)}
-.socials svg{display:block}
+.links a:hover{border-color:var(--accent); color:var(--accent)}
 footer{
-  padding:28px 0 56px; text-align:center;
-  color:var(--muted); font-size:13px; border-top:1px solid var(--line); margin-top:30px;
+  margin:56px 0 0; padding:26px 0 56px; border-top:1px solid var(--line);
+  color:var(--muted); font-size:13.5px;
 }
-
-/* ---------- sound toggle ---------- */
-.soundtoggle{
-  position:fixed; z-index:7;
-  top:calc(env(safe-area-inset-top, 0px) + 14px);
-  right:max(16px, env(safe-area-inset-right, 0px));
-  display:inline-flex; align-items:center; gap:8px;
-  font:inherit; font-size:13px; font-weight:500; color:var(--fg);
-  background:var(--surface); border:1px solid var(--line); border-radius:999px;
-  padding:8px 14px; cursor:pointer;
-}
-.soundtoggle:hover{border-color:var(--accent)}
-.soundtoggle .dot{width:8px; height:8px; border-radius:50%; background:var(--accent)}
-.soundtoggle.off .dot{background:var(--muted)}
-
-@media (max-width:560px){
-  .hero{padding-top:44px}
-  .track{padding:16px}
-  .badge{width:44px; height:44px; font-size:18px}
-}
-@media (prefers-reduced-motion: reduce){
-  .track, .playbtn, .veil{transition:none}
-}
+footer a{color:var(--muted)}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
 </style>
 </head>
 <body>
 
 
-<button class="soundtoggle" id="soundToggle" aria-pressed="true">
-  <span class="dot"></span><span id="soundLabel">Sound on</span>
-</button>
+<a class="skip" href="#main">Skip to content</a>
 
-<div class="veil" id="veil">
-  <div class="inner">
-    <p class="eyebrow">Hansel presents</p>
-    <h2>An Ode to Everything</h2>
-    <p>Beethoven's Ninth, the way my life is arranged: the cellos start it, and every section of the stage &mdash; and of this site &mdash; joins in turn.</p>
-    <button class="startbtn" id="startBtn">
-      <svg width="16" height="16" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><path d="M2 1.5v11l10-5.5z"/></svg>
-      Begin the overture
-    </button>
-    <button class="skiplink" id="skipBtn">Skip straight to the site (no sound)</button>
+<div class="page">
+
+  <aside class="rail left" aria-hidden="true">
+    <div class="rail-inner">
+      <div class="slot">
+        <svg width="36" height="36" viewBox="0 0 36 36"><path d="M6 24 q6 -10 12 -2 q6 8 12 -4"/><circle cx="10" cy="12" r="3"/></svg>
+        Side element slot &mdash; your idea goes here (sketches, photos, marginalia)
+      </div>
+      <div class="slot">
+        <svg width="36" height="36" viewBox="0 0 36 36"><rect x="7" y="7" width="22" height="22" rx="3"/><path d="M11 23 l6 -7 4 4 4 -6"/></svg>
+        Photo slot &mdash; awaiting pictures
+      </div>
+    </div>
+  </aside>
+
+  <aside class="rail right" aria-hidden="true">
+    <div class="rail-inner">
+      <div class="slot">
+        <svg width="36" height="36" viewBox="0 0 36 36"><path d="M10 28 V10 l14 -3 v18"/><circle cx="7" cy="28" r="3.5"/><circle cx="21" cy="25" r="3.5"/></svg>
+        Side element slot &mdash; different scroll speeds and click-sketches come after the core content
+      </div>
+    </div>
+  </aside>
+
+  <div class="col">
+
+    <header class="site">
+      <a class="wordmark" href="#">Hansel Saldanha</a>
+      <nav class="site" aria-label="Sections">
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a href="#life">Life</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main id="main">
+
+      <section class="intro">
+        <h1>Hansel Saldanha</h1>
+        <p class="headline">I coordinate infrastructure projects by day and build iOS apps by conviction. <span class="todo">headline &amp; desired roles &mdash; confirm wording</span></p>
+        <p>Based in Seattle <span class="todo">confirm</span>. This is the short version of me: the longer versions are below &mdash; the professional one first, the personal one given equal room, as it should be.</p>
+      </section>
+
+      <hr class="rule">
+
+      <section id="work" aria-label="Work">
+        <p class="kicker">Work</p>
+        <h2>What I've worked on</h2>
+
+        <div class="entry">
+          <p class="where">Amazon Web Services &mdash; Data Center Edge Network Capacity</p>
+          <p class="what">Coordinated infrastructure deployment projects across data centers for the Data Center Edge Network Capacity team, including racks supporting Amazon S3 traffic.</p>
+        </div>
+
+        <div class="entry">
+          <p class="where">George Mason University &mdash; research</p>
+          <p class="what">Worked on a privately funded research project documenting bruises across various skin types.</p>
+          <p class="what"><span class="todo">dates, role details &amp; education to add</span></p>
+        </div>
+
+        <h3>Featured project</h3>
+        <div class="project">
+          <p class="where" style="font-family:var(--display); font-size:24px; margin:0">Jam Clean</p>
+          <p class="tagline">Jam Clean turns gallery cleanup into a simple swiping experience. Clear the clutter in spare moments, one swipe at a time.</p>
+          <div class="badges">
+            <span class="badge">iOS</span>
+            <span class="badge">Public beta</span>
+            <span class="badge">Design &amp; build: Hansel</span>
+          </div>
+          <ul>
+            <li>Swipe through your gallery the way you'd swipe anywhere else &mdash; keeping or clearing one photo at a time.</li>
+            <li>A date-based calendar view shows photo density per day.</li>
+            <li>Statistics track photos cleared, photos in the gallery, and storage saved.</li>
+            <li>Finds similar photos and duplicates to help remove extras.</li>
+            <li><em>Planned:</em> cleanup reminder notifications.</li>
+          </ul>
+          <a class="cta" href="https://testflight.apple.com/join/sxjDmZty">Join the beta on TestFlight</a>
+          <div class="shots">
+            <div class="todo-block">App screenshot<br>&mdash; to come &mdash;</div>
+            <div class="todo-block">App screenshot<br>&mdash; to come &mdash;</div>
+          </div>
+        </div>
+
+        <p class="what" style="margin-top:18px"><span class="todo">decide</span> Possible addition: <em>Classroom Lecture Attention Analysis Framework</em> (SSRN, 2020, with co-authors) &mdash; pending your call on inclusion and how to describe your contribution.</p>
+      </section>
+
+      <hr class="rule">
+
+      <section id="about" aria-label="About">
+        <p class="kicker">About</p>
+        <h2>Who I am</h2>
+        <p>Builder first: I like taking a thing from "what if" to "installed on a real phone." That instinct runs through the infrastructure work, the research, and the apps &mdash; and through most of the Life section below, honestly.</p>
+        <p><span class="todo">short introduction in your own words &mdash; to write together</span></p>
+      </section>
+
+      <hr class="rule">
+
+      <section id="life" aria-label="Life">
+        <p class="kicker">Life</p>
+        <h2>The rest of me</h2>
+        <p>Not a footnote. These get real stories and real photographs, added as they're collected.</p>
+
+        <div class="life-item">
+          <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 13 h24 M8 19 h24 M8 25 h24"/><ellipse cx="15" cy="25" rx="3" ry="2.2"/><path d="M18 25 V12 l6 -2 v13"/><ellipse cx="21" cy="23" rx="3" ry="2.2"/></svg>
+          <div>
+            <h3>Choir</h3>
+            <p>I sing. I have a particular soft spot for classical choral music &mdash; the kind of chord that makes a whole rehearsal worth it.</p>
+            <p class="what"><span class="todo">first story &amp; photo to come</span></p>
+          </div>
+        </div>
+
+        <div class="life-item">
+          <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6 q-7 9 0 14 q7 -5 0 -14 Z"/><path d="M20 20 V32 M14 32 h12"/></svg>
+          <div>
+            <h3>Cooking</h3>
+            <p>Recipes as improvisation: start from the chart, then play by ear.</p>
+            <p class="what"><span class="todo">first story &amp; photo to come</span></p>
+          </div>
+        </div>
+
+        <div class="life-item">
+          <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 22 q5 -6 10 0 q5 6 10 0 q5 -6 10 0 M5 29 q5 -6 10 0 q5 6 10 0 q5 -6 10 0"/></svg>
+          <div>
+            <h3>Swimming</h3>
+            <p>Laps, preferably early. The one place the phone can't follow.</p>
+            <p class="what"><span class="todo">first story &amp; photo to come</span></p>
+          </div>
+        </div>
+
+        <div class="life-item">
+          <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 10 q-5 -4 -12 -3 v22 q7 -1 12 3 q5 -4 12 -3 V7 q-7 -1 -12 3 Z M20 10 v22"/></svg>
+          <div>
+            <h3>Reading</h3>
+            <p>Always something open.</p>
+            <p class="what"><span class="todo">current shelf &amp; a few favourites to add</span></p>
+          </div>
+        </div>
+      </section>
+
+      <hr class="rule">
+
+      <section id="contact" aria-label="Contact">
+        <p class="kicker">Contact</p>
+        <h2>Say hello</h2>
+        <p><span class="todo">public contact method to add &mdash; choose what you're comfortable publishing</span></p>
+        <div class="links">
+          <a href="https://github.com/hanspres1999">GitHub</a>
+          <a href="https://www.linkedin.com/in/hanspres1999/">LinkedIn <span class="todo" style="margin-left:4px">verify</span></a>
+        </div>
+      </section>
+
+      <footer>
+        First draft, built in public. Earlier experiments live in the archive:
+        <a href="archive/overture/">the Overture</a> &middot;
+        <a href="archive/study/">the Study</a> &middot;
+        <a href="archive/gate/">the Gate</a>.
+      </footer>
+
+    </main>
   </div>
 </div>
-
-<main>
-  <section class="hero">
-    <p class="eyebrow">Portfolio &middot; Prototype &middot; Free for now, domain later</p>
-    <h1 id="heroTitle">Hansel</h1>
-    <p class="sub">My life, seated as an orchestra. I'm on the podium; every section of the stage is a section of the site. Click one to hear it and visit it.</p>
-  </section>
-
-  <section class="stage-wrap" aria-label="Orchestra menu">
-    <div id="stage3d" aria-label="3D orchestra stage. Each section is a link; the list below mirrors it."></div>
-    <div class="caption-bar" aria-live="polite">
-      <span class="cap-name" id="capName">The stage is set</span>
-      <span class="cap-role" id="capRole">Hover a section to meet it &middot; click to hear it and go there</span>
-    </div>
-    <p class="stage-hint">Keyboard: <kbd>1</kbd>&ndash;<kbd>8</kbd> auditions each section &middot; drag does nothing yet &mdash; the camera drifts on its own</p>
-    <div class="tuttirow">
-      <button class="playbtn" id="encoreBtn">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><path d="M2 1.5v11l10-5.5z"/></svg>
-        <span id="encoreLabel">Play the overture</span>
-      </button>
-    </div>
-  </section>
-
-  <section class="tracks" aria-label="Sections">
-    <h2>The programme</h2>
-
-    <article class="track" id="about">
-      <div class="badge" style="font-size:15px">&#119070;</div>
-      <div class="body">
-        <p class="trk">The podium &middot; Conductor</p>
-        <h3>About me</h3>
-        <p>I'm Hansel. Singer, swimmer, iOS developer, cook &mdash; and the one on the podium trying to keep all of it in time. This section becomes the full introduction: who I am, what I'm building, and why the site looks like a concert hall.</p>
-      </div>
-    </article>
-
-    <article class="track" id="choir">
-      <div class="badge">C</div>
-      <div class="body">
-        <p class="trk">The risers &middot; Choir</p>
-        <h3>Choir</h3>
-        <p>Where the week resolves. Four-part harmony, held breaths, and the one chord in rehearsal that makes everything before it worth it. The choirs I sing with and upcoming performances will live here.</p>
-      </div>
-    </article>
-
-    <article class="track" id="music">
-      <div class="badge">E</div>
-      <div class="body">
-        <p class="trk">The violins &middot; Strings</p>
-        <h3>Music</h3>
-        <p>The melody line of the whole piece. What I'm playing, listening to, and learning &mdash; a living shelf of current obsessions, with embedded players once the real site is up.</p>
-      </div>
-    </article>
-
-    <article class="track" id="swim">
-      <div class="badge">D</div>
-      <div class="body">
-        <p class="trk">The low strings &middot; Cellos &amp; basses</p>
-        <h3>Swim</h3>
-        <p>The deep end of the orchestra for the deep end of the pool &mdash; and in the real Ninth, the cellos are the ones who introduce the theme. Laps before the day starts; timing logs and open-water plans land here.</p>
-      </div>
-    </article>
-
-    <article class="track" id="cooking">
-      <div class="badge">A</div>
-      <div class="body">
-        <p class="trk">The woodwinds &middot; Reeds &amp; flutes</p>
-        <h3>Cooking</h3>
-        <p>The seasoning section. Recipes as improvisation: start from the chart, then play by ear. Favourite dishes, kitchen failures worth retelling, and the occasional photo that does the food justice.</p>
-      </div>
-    </article>
-
-    <article class="track" id="work">
-      <div class="badge">G</div>
-      <div class="body">
-        <p class="trk">The brass &middot; Fanfare</p>
-        <h3>Work</h3>
-        <p>The section that has to project to the back row. Roles, projects, and what I'm learning on the clock &mdash; the professional movement in an otherwise loud piece.</p>
-      </div>
-    </article>
-
-    <article class="track" id="coding">
-      <div class="badge">F</div>
-      <div class="body">
-        <p class="trk">The percussion &middot; Timpani</p>
-        <h3>Coding</h3>
-        <p>I hit keys for a living too. iOS apps so far &mdash; Chatter and JamClean &mdash; and this site is the next experiment. Project write-ups, screenshots, and App Store links will live here.</p>
-      </div>
-    </article>
-
-    <article class="track" id="social">
-      <div class="badge">B</div>
-      <div class="body">
-        <p class="trk">The house &middot; Audience</p>
-        <h3>Social</h3>
-        <p>Everyone watching from the dark. They applaud when the symphony ends. Handles and links below &mdash; they'll go live when the domain does.</p>
-      </div>
-    </article>
-  </section>
-
-  <section class="socials" aria-label="Social links">
-    <div class="row">
-      <a href="#social" title="Placeholder — add your real link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.55v-2.1c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.66.41.36.78 1.06.78 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
-        github.com/yourhandle
-      </a>
-      <a href="#social" title="Placeholder — add your real link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-        @yourhandle
-      </a>
-      <a href="#social" title="Placeholder — add your real link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 7.1a3 3 0 0 0-2.1-2.1C19.5 4.5 12 4.5 12 4.5s-7.5 0-9.4.5A3 3 0 0 0 .5 7.1 31 31 0 0 0 0 12a31 31 0 0 0 .5 4.9 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-4.9zM9.6 15.6V8.4L15.8 12z"/></svg>
-        youtube.com/@yourhandle
-      </a>
-    </div>
-  </section>
-
-  <footer>
-    Built free: this page is the prototype &mdash; the real site moves to GitHub Pages, and the domain comes later.<br>
-    The orchestra is generated low-poly geometry and the Ninth is synthesized live from the score; no recordings, nothing sent anywhere.
-  </footer>
-</main>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-(function(){
-  "use strict";
-  var reduced = false;
-  try { reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){}
-
-  /* ================= audio engine ================= */
-  var ctx = null, master = null, noiseBuf = null, soundOn = true, voiceOut = null;
-  var BPM = 115, BEAT = 60 / BPM;
-  function OUT(){ return voiceOut || master; }
-
-  function ensureCtx(){
-    if (!ctx) {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return false;
-      ctx = new AC();
-      master = ctx.createGain();
-      master.gain.value = 0.5;
-      master.connect(ctx.destination);
-      noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-      var d = noiseBuf.getChannelData(0);
-      for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    }
-    if (ctx.state === "suspended") { ctx.resume().catch(function(){}); }
-    return true;
-  }
-  function mf(m){ return 440 * Math.pow(2, (m - 69) / 12); }
-  function adsr(g, t, a, peak, dur){
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(peak, t + a);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  }
-  function sawVoice(f, t, dur, peak, cut, att){
-    var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = cut;
-    var g = ctx.createGain(); adsr(g, t, att, peak, dur);
-    lp.connect(g); g.connect(OUT());
-    [-5, 4].forEach(function(cents){
-      var o = ctx.createOscillator(); o.type = "sawtooth";
-      o.frequency.value = f; o.detune.value = cents;
-      var og = ctx.createGain(); og.gain.value = 0.5;
-      o.connect(og); og.connect(lp);
-      o.start(t); o.stop(t + dur + 0.08);
-    });
-  }
-  var violinV = function(f,t,d){ sawVoice(f, t, d, 0.09, 2000, 0.07); };
-  var celloV  = function(f,t,d){ sawVoice(f, t, d, 0.15, 800, 0.06); };
-  var bassV   = function(f,t,d){ sawVoice(f, t, d, 0.16, 420, 0.05); };
-  function brassV(f, t, d){
-    var lp = ctx.createBiquadFilter(); lp.type = "lowpass";
-    lp.frequency.setValueAtTime(500, t);
-    lp.frequency.exponentialRampToValueAtTime(2600, t + 0.07);
-    var g = ctx.createGain(); adsr(g, t, 0.035, 0.12, d);
-    lp.connect(g); g.connect(OUT());
-    [0, 6].forEach(function(cents){
-      var o = ctx.createOscillator(); o.type = "sawtooth";
-      o.frequency.value = f; o.detune.value = cents;
-      var og = ctx.createGain(); og.gain.value = 0.5;
-      o.connect(og); og.connect(lp);
-      o.start(t); o.stop(t + d + 0.08);
-    });
-  }
-  function windV(f, t, d){
-    var o = ctx.createOscillator(); o.type = "triangle"; o.frequency.value = f;
-    var vib = ctx.createOscillator(); vib.frequency.value = 5.5;
-    var vg = ctx.createGain(); vg.gain.value = f * 0.006;
-    vib.connect(vg); vg.connect(o.frequency);
-    var g = ctx.createGain(); adsr(g, t, 0.05, 0.08, d);
-    o.connect(g); g.connect(OUT());
-    o.start(t); o.stop(t + d + 0.08); vib.start(t); vib.stop(t + d + 0.08);
-  }
-  function timpV(f, t){
-    var o = ctx.createOscillator(); o.type = "sine";
-    o.frequency.setValueAtTime(f * 2, t);
-    o.frequency.exponentialRampToValueAtTime(Math.max(40, f * 0.9), t + 0.3);
-    var g = ctx.createGain(); adsr(g, t, 0.008, 0.4, 0.8);
-    o.connect(g); g.connect(OUT());
-    o.start(t); o.stop(t + 0.9);
-    var n = ctx.createBufferSource(); n.buffer = noiseBuf;
-    var nf = ctx.createBiquadFilter(); nf.type = "lowpass"; nf.frequency.value = 280;
-    var ng = ctx.createGain(); adsr(ng, t, 0.005, 0.2, 0.22);
-    n.connect(nf); nf.connect(ng); ng.connect(OUT());
-    n.start(t); n.stop(t + 0.25);
-  }
-  function choirV(midis, t, dur){
-    var mix = ctx.createGain(); adsr(mix, t, Math.min(0.5, dur * 0.35), 0.17, dur);
-    [[730, 5], [1090, 7], [2440, 3]].forEach(function(fm){
-      var bp = ctx.createBiquadFilter(); bp.type = "bandpass";
-      bp.frequency.value = fm[0]; bp.Q.value = fm[1];
-      var bg = ctx.createGain(); bg.gain.value = 0.5;
-      bp.connect(bg); bg.connect(mix);
-      midis.forEach(function(m){
-        [-5, 5].forEach(function(cents){
-          var o = ctx.createOscillator(); o.type = "sawtooth";
-          o.frequency.value = mf(m); o.detune.value = cents;
-          var og = ctx.createGain(); og.gain.value = 0.18;
-          o.connect(og); og.connect(bp);
-          o.start(t); o.stop(t + dur + 0.1);
-        });
-      });
-    });
-    mix.connect(OUT());
-  }
-  function tapV(t){
-    var n = ctx.createBufferSource(); n.buffer = noiseBuf;
-    var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 2500;
-    var g = ctx.createGain(); adsr(g, t, 0.003, 0.25, 0.06);
-    n.connect(hp); hp.connect(g); g.connect(OUT());
-    n.start(t); n.stop(t + 0.08);
-  }
-  function applauseV(t, dur){
-    var n = ctx.createBufferSource(); n.buffer = noiseBuf; n.loop = true;
-    var bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2800; bp.Q.value = 0.6;
-    var g = ctx.createGain();
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.2, t + 0.3);
-    g.gain.setValueAtTime(0.2, t + dur - 1);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    var lfo = ctx.createOscillator(); lfo.frequency.value = 11;
-    var lg = ctx.createGain(); lg.gain.value = 0.08;
-    lfo.connect(lg); lg.connect(g.gain);
-    n.connect(bp); bp.connect(g); g.connect(OUT());
-    n.start(t); n.stop(t + dur + 0.1); lfo.start(t); lfo.stop(t + dur + 0.1);
-  }
-
-  /* ================= the score: Ode to Joy, D major ================= */
-  // [midi, beats]; phrase A and phrase A' (4 bars each, 16 beats)
-  var PHR_A = [[66,1],[66,1],[67,1],[69,1],[69,1],[67,1],[66,1],[64,1],[62,1],[62,1],[64,1],[66,1],[66,1.5],[64,.5],[64,2]];
-  var PHR_B = [[66,1],[66,1],[67,1],[69,1],[69,1],[67,1],[66,1],[64,1],[62,1],[62,1],[64,1],[66,1],[64,1.5],[62,.5],[62,2]];
-  // bass roots per half-bar (2 beats each), D2=38 A1=33
-  var BASS_A = [38,38,38,33,38,38,33,33];
-  var BASS_B = [38,38,38,33,38,38,33,38];
-  var CHORDS = { 38:[62,66,69], 33:[61,64,69] }; // D major, A major
-
-  function seqMel(mel, tStart, offset, voice){
-    var t = tStart;
-    mel.forEach(function(n){
-      voice(mf(n[0] + offset), t, n[1] * BEAT * 0.95);
-      t += n[1] * BEAT;
-    });
-  }
-  function seqRoots(arr, tStart, offset, voice){
-    var t = tStart;
-    arr.forEach(function(m){ voice(mf(m + offset), t, 2 * BEAT * 0.95); t += 2 * BEAT; });
-  }
-
-  var playing = false, perfOffset = 0, windows = {}, symBus = null, loopTimer = null;
-
-  function setPlayLabel(){
-    var l = document.getElementById("encoreLabel");
-    if (l) l.textContent = playing ? "Stop the orchestra" : "Play the overture";
-  }
-  function addWin(id, s, e){ (windows[id] = windows[id] || []).push([s, e]); }
-
-  // one full build-up cycle (cellos -> violins -> winds/brass/timpani -> choir), 64 beats
-  function scheduleCycle(m0){
-    var P = 16 * BEAT;
-    var t2 = m0 + P, t3 = m0 + 2 * P, t4 = m0 + 3 * P, end = m0 + 4 * P;
-    voiceOut = symBus;
-    seqMel(PHR_A, m0, -12, celloV);
-    seqMel(PHR_B, t2, 0, violinV);
-    seqRoots(BASS_B, t2, 0, bassV);
-    seqMel(PHR_A, t3, 0, violinV);
-    seqMel(PHR_A, t3, 12, windV);
-    seqRoots(BASS_A, t3, 0, bassV);
-    seqRoots(BASS_A, t3, 12, brassV);
-    (function(){ var t = t3; BASS_A.forEach(function(m){ timpV(mf(m), t); t += 2 * BEAT; }); })();
-    seqMel(PHR_B, t4, 0, violinV);
-    seqMel(PHR_B, t4, 12, windV);
-    seqRoots(BASS_B, t4, 0, bassV);
-    seqRoots(BASS_B, t4, 12, brassV);
-    (function(){ var t = t4; BASS_B.forEach(function(m){ timpV(mf(m), t); t += 2 * BEAT; }); })();
-    (function(){ var t = t4; BASS_B.forEach(function(m){ choirV(CHORDS[m], t, 2 * BEAT * 1.05); t += 2 * BEAT; }); })();
-    // loop seam: a soft held D chord and a low D bridge across the bar line into the next cycle's solo cellos
-    choirV([62, 66, 69], end - 2 * BEAT, 4 * BEAT);
-    bassV(mf(26), end - 2 * BEAT, 4 * BEAT * 0.95);
-    voiceOut = null;
-    addWin("about", m0 - 2, end + 2);
-    addWin("swim", m0, end + 1);
-    addWin("music", t2, end + 1);
-    addWin("cooking", t3, end + 1);
-    addWin("work", t3, end + 1);
-    addWin("coding", t3, end + 1);
-    addWin("choir", t4, end + 1.5);
-    return end;
-  }
-
-  function queueCycle(m0){
-    if (!playing) return;
-    for (var id in windows){
-      windows[id] = windows[id].filter(function(w){ return w[1] > ctx.currentTime - 2; });
-    }
-    var end = scheduleCycle(m0);
-    var waitMs = (end - ctx.currentTime - 1.5) * 1000;
-    loopTimer = setTimeout(function(){ queueCycle(end); }, Math.max(200, waitMs));
-  }
-
-  function startSymphony(){
-    if (playing || !ensureCtx()) return;
-    playing = true;
-    setPlayLabel();
-    perfOffset = performance.now() / 1000 - ctx.currentTime;
-    symBus = ctx.createGain();
-    symBus.gain.value = 1;
-    symBus.connect(master);
-    var t0 = ctx.currentTime + 0.2;
-    voiceOut = symBus;
-    [0, 0.3, 0.6].forEach(function(dt){ tapV(t0 + dt); });
-    voiceOut = null;
-    queueCycle(t0 + 1.4);
-  }
-
-  function stopSymphony(){
-    if (!playing) return;
-    playing = false;
-    setPlayLabel();
-    clearTimeout(loopTimer);
-    windows = {};
-    if (symBus && ctx){
-      var b = symBus, t = ctx.currentTime;
-      b.gain.setValueAtTime(b.gain.value, t);
-      b.gain.linearRampToValueAtTime(0.0001, t + 1.2);
-      setTimeout(function(){ try { b.disconnect(); } catch(e){} }, 1500);
-      symBus = null;
-    }
-  }
-
-  /* quick per-section sounds (hover-click / number keys) */
-  var SOUNDS = {
-    about:   function(){ [0,0.28,0.56].forEach(function(dt){ tapV(ctx.currentTime + 0.05 + dt); }); },
-    choir:   function(){ choirV([62,66,69], ctx.currentTime + 0.05, 2.6); },
-    music:   function(){ violinV(mf(66), ctx.currentTime + 0.05, 0.6); violinV(mf(69), ctx.currentTime + 0.35, 1.2); },
-    swim:    function(){ celloV(mf(38), ctx.currentTime + 0.05, 1.8); bassV(mf(26), ctx.currentTime + 0.05, 1.8); },
-    cooking: function(){ windV(mf(76), ctx.currentTime + 0.05, 0.4); windV(mf(79), ctx.currentTime + 0.2, 0.4); windV(mf(83), ctx.currentTime + 0.35, 0.8); },
-    work:    function(){ brassV(mf(50), ctx.currentTime + 0.05, 0.5); brassV(mf(57), ctx.currentTime + 0.25, 0.9); },
-    coding:  function(){ timpV(mf(38), ctx.currentTime + 0.05); timpV(mf(33), ctx.currentTime + 0.3); },
-    social:  function(){ applauseV(ctx.currentTime + 0.05, 2.0); }
-  };
-  function playQuick(id){
-    if (!soundOn || !ensureCtx()) return;
-    var fn = SOUNDS[id]; if (fn) fn();
-  }
-
-  /* ================= 3D stage ================= */
-  var SECTIONS = [
-    { id:"about",  name:"The Conductor",   role:"About me — the one keeping all of it in time.", key:"1" },
-    { id:"choir",  name:"The Choir",       role:"Choir — four-part harmony on the risers.", key:"2" },
-    { id:"music",  name:"The Violins",     role:"Music — they take the theme from the cellos.", key:"3" },
-    { id:"swim",   name:"Cellos & Basses", role:"Swim — the deep end; they start the Ninth.", key:"4" },
-    { id:"cooking",name:"The Woodwinds",   role:"Cooking — the seasoning section.", key:"5" },
-    { id:"work",   name:"The Brass",       role:"Work — has to project to the back row.", key:"6" },
-    { id:"coding", name:"The Percussion",  role:"Coding — I hit keys for a living.", key:"7" },
-    { id:"social", name:"The Audience",    role:"Social — everyone watching from the dark.", key:"8" }
-  ];
-  var secById = {};
-  SECTIONS.forEach(function(s){ secById[s.id] = s; });
-
-  var container = document.getElementById("stage3d");
-  var capName = document.getElementById("capName");
-  var capRole = document.getElementById("capRole");
-  var restName = capName.textContent, restRole = capRole.textContent;
-  var encoreBtn = document.getElementById("encoreBtn");
-
-  var renderer = null, scene, camera, players = [], secState = {}, rings = {}, clickables = [];
-  var hovered = null, batonArm = null, timpaniArms = [];
-
-  function initThree(){
-    if (!window.THREE) return false;
-    try { renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true }); }
-    catch(e){ return false; }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    container.appendChild(renderer.domElement);
-
-    scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0d0b16, 18, 34);
-    camera = new THREE.PerspectiveCamera(42, 16/9, 0.1, 60);
-
-    scene.add(new THREE.AmbientLight(0x4a4066, 0.9));
-    var warm = new THREE.DirectionalLight(0xffe2b0, 0.85);
-    warm.position.set(4, 12, 10); scene.add(warm);
-    var violet = new THREE.DirectionalLight(0x8f6dff, 0.5);
-    violet.position.set(-6, 8, -8); scene.add(violet);
-
-    // floors
-    var house = new THREE.Mesh(new THREE.CircleGeometry(26, 40),
-      new THREE.MeshStandardMaterial({ color:0x121020, roughness:1 }));
-    house.rotation.x = -Math.PI/2; house.position.y = -0.03; scene.add(house);
-    var stage = new THREE.Mesh(new THREE.CylinderGeometry(9.2, 9.6, 0.25, 40),
-      new THREE.MeshStandardMaterial({ color:0x2b1e1a, roughness:0.9 }));
-    stage.position.set(0, -0.125, 0.4); scene.add(stage);
-    // choir risers
-    [[13, 0.3, -3.4], [14, 0.6, -4.7]].forEach(function(r){
-      var b = new THREE.Mesh(new THREE.BoxGeometry(r[0], r[1], 1.4),
-        new THREE.MeshStandardMaterial({ color:0x241a15, roughness:0.9 }));
-      b.position.set(0, r[1]/2, r[2]); scene.add(b);
-    });
-    // podium
-    var pod = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 1.2),
-      new THREE.MeshStandardMaterial({ color:0x241a15, roughness:0.9 }));
-    pod.position.set(0, 0.2, 4.4); scene.add(pod);
-
-    buildOrchestra();
-    sizeRenderer();
-    return true;
-  }
-
-  /* shared geometry + materials */
-  var geoCache = {};
-  function G(name, make){ if (!geoCache[name]) geoCache[name] = make(); return geoCache[name]; }
-  var headMat, woodMat, brassMat, silverMat, darkMat;
-
-  function secMaterial(base){
-    var m = new THREE.MeshStandardMaterial({ color:base, flatShading:true, roughness:0.75 });
-    m.emissive = new THREE.Color(0xe6b655);
-    m.emissiveIntensity = 0;
-    return m;
-  }
-
-  function makeFigure(mat, scale){
-    var g = new THREE.Group();
-    var robe = new THREE.Mesh(G("robe", function(){ return new THREE.ConeGeometry(0.34, 1.1, 6); }), mat);
-    robe.position.y = 0.55; g.add(robe);
-    var head = new THREE.Mesh(G("head", function(){ return new THREE.IcosahedronGeometry(0.17, 0); }), headMat);
-    head.position.y = 1.22; g.add(head);
-    g.userData.head = head;
-    if (scale) g.scale.setScalar(scale);
-    return g;
-  }
-  function addArm(fig, len, mat){
-    var pivot = new THREE.Group();
-    pivot.position.set(0.26, 1.02, 0.08);
-    var arm = new THREE.Mesh(G("arm"+len, function(){ return new THREE.BoxGeometry(0.06, len, 0.06); }), mat || silverMat);
-    arm.position.y = -len/2 + 0.03;
-    pivot.add(arm);
-    fig.add(pivot);
-    return pivot;
-  }
-
-  function placeFigure(sec, fig, x, z, y0, faceX, faceZ, meta){
-    fig.position.set(x, y0 || 0, z);
-    fig.rotation.y = Math.atan2(faceX - x, faceZ - z);
-    scene.add(fig);
-    var p = {
-      sec: sec, group: fig, head: fig.userData.head,
-      phase: Math.random() * Math.PI * 2,
-      arm: meta && meta.arm, armBase: (meta && meta.armBase) || -0.5,
-      armAmp: (meta && meta.armAmp) || 0, armSpeed: (meta && meta.armSpeed) || 3,
-      headBase: fig.userData.head.position.y
-    };
-    players.push(p);
-    fig.traverse(function(o){ if (o.isMesh){ o.userData.secId = sec; clickables.push(o); } });
-    return p;
-  }
-
-  function arcXZ(deg, r){
-    var a = deg * Math.PI / 180;
-    return { x: Math.sin(a) * r, z: 5.5 - Math.cos(a) * r };
-  }
-
-  function buildOrchestra(){
-    headMat  = new THREE.MeshStandardMaterial({ color:0xcfc4a6, flatShading:true, roughness:0.7 });
-    woodMat  = new THREE.MeshStandardMaterial({ color:0x8a5a33, flatShading:true, roughness:0.8 });
-    brassMat = new THREE.MeshStandardMaterial({ color:0xe6b655, flatShading:true, roughness:0.4, metalness:0.5 });
-    silverMat= new THREE.MeshStandardMaterial({ color:0xb9bfd0, flatShading:true, roughness:0.5, metalness:0.4 });
-    darkMat  = new THREE.MeshStandardMaterial({ color:0x241f38, flatShading:true, roughness:0.95 });
-
-    var mats = {};
-    SECTIONS.forEach(function(s){
-      mats[s.id] = secMaterial(s.id === "social" ? 0x241f38 : 0x5a4f75);
-      secState[s.id] = { a: 0, target: 0, positions: [] };
-    });
-    var C = { x:0, z:4.4 }; // conductor focal
-
-    function reg(sec, x, z){ secState[sec].positions.push([x, z]); }
-
-    // violins — front left, bows
-    [[3.4, -62, -30, 4], [4.6, -66, -28, 5]].forEach(function(row){
-      for (var i = 0; i < row[3]; i++){
-        var deg = row[1] + (row[2]-row[1]) * (row[3] === 1 ? 0.5 : i/(row[3]-1));
-        var p = arcXZ(deg, row[0]);
-        var fig = makeFigure(mats.music);
-        var violin = new THREE.Mesh(G("violin", function(){ return new THREE.BoxGeometry(0.46, 0.07, 0.2); }), woodMat);
-        violin.position.set(-0.12, 0.98, 0.18); violin.rotation.z = 0.5; fig.add(violin);
-        var arm = addArm(fig, 0.5);
-        placeFigure("music", fig, p.x, p.z, 0, C.x, C.z, { arm:arm, armBase:-0.55, armAmp:0.45, armSpeed:3.4 });
-        reg("music", p.x, p.z);
-      }
-    });
-
-    // cellos + basses — front right
-    [[3.4, 30, 62, 3], [4.6, 28, 66, 4]].forEach(function(row){
-      for (var i = 0; i < row[3]; i++){
-        var deg = row[1] + (row[2]-row[1]) * (row[3] === 1 ? 0.5 : i/(row[3]-1));
-        var p = arcXZ(deg, row[0]);
-        var fig = makeFigure(mats.swim);
-        var cello = new THREE.Mesh(G("cello", function(){ return new THREE.BoxGeometry(0.3, 0.95, 0.16); }), woodMat);
-        cello.position.set(0, 0.62, 0.3); cello.rotation.x = -0.12; fig.add(cello);
-        var arm = addArm(fig, 0.5);
-        placeFigure("swim", fig, p.x, p.z, 0, C.x, C.z, { arm:arm, armBase:-0.4, armAmp:0.35, armSpeed:2.6 });
-        reg("swim", p.x, p.z);
-      }
-    });
-    [58, 68].forEach(function(deg){
-      var p = arcXZ(deg, 5.8);
-      var fig = makeFigure(mats.swim, 1.15);
-      var bass = new THREE.Mesh(G("bass", function(){ return new THREE.BoxGeometry(0.36, 1.35, 0.2); }), woodMat);
-      bass.position.set(0, 0.8, 0.32); bass.rotation.x = -0.1; fig.add(bass);
-      var arm = addArm(fig, 0.5);
-      placeFigure("swim", fig, p.x, p.z, 0, C.x, C.z, { arm:arm, armBase:-0.35, armAmp:0.3, armSpeed:2.2 });
-      reg("swim", p.x, p.z);
-    });
-
-    // woodwinds — centre
-    [[5.4, -14, 14, 3], [6.4, -17, 17, 3]].forEach(function(row){
-      for (var i = 0; i < row[3]; i++){
-        var deg = row[1] + (row[2]-row[1]) * (i/(row[3]-1));
-        var p = arcXZ(deg, row[0]);
-        var fig = makeFigure(mats.cooking);
-        var flute = new THREE.Mesh(G("flute", function(){ return new THREE.CylinderGeometry(0.035, 0.035, 0.66, 6); }), silverMat);
-        flute.position.set(0.08, 1.08, 0.2); flute.rotation.z = Math.PI/2 - 0.2; fig.add(flute);
-        placeFigure("cooking", fig, p.x, p.z, 0, C.x, C.z, {});
-        reg("cooking", p.x, p.z);
-      }
-    });
-
-    // brass — back right
-    for (var i = 0; i < 5; i++){
-      var deg = 22 + (50-22) * (i/4);
-      var p = arcXZ(deg, 7.3);
-      var fig = makeFigure(mats.work);
-      var bell = new THREE.Mesh(G("bell", function(){ return new THREE.ConeGeometry(0.17, 0.5, 8); }), brassMat);
-      bell.position.set(0, 1.02, 0.4); bell.rotation.x = Math.PI/2 + 0.25; fig.add(bell);
-      placeFigure("work", fig, p.x, p.z, 0, C.x, C.z, {});
-      reg("work", p.x, p.z);
-    }
-
-    // percussion — back left: two players + three timpani
-    [-46, -36].forEach(function(deg, idx){
-      var p = arcXZ(deg, 7.6);
-      var fig = makeFigure(mats.coding);
-      var arm = addArm(fig, 0.45);
-      var pl = placeFigure("coding", fig, p.x, p.z, 0, C.x, C.z, { arm:arm, armBase:-0.9, armAmp:0.55, armSpeed:6 });
-      pl.altSign = idx % 2 ? 1 : -1;
-      timpaniArms.push(pl);
-      reg("coding", p.x, p.z);
-    });
-    [-50, -41, -32].forEach(function(deg, i){
-      var p = arcXZ(deg, 6.7);
-      var bowl = new THREE.Mesh(G("timp", function(){ return new THREE.CylinderGeometry(0.52, 0.34, 0.42, 8); }), brassMat);
-      bowl.position.set(p.x, 0.21, p.z); scene.add(bowl);
-      bowl.userData.secId = "coding"; clickables.push(bowl);
-      reg("coding", p.x, p.z);
-    });
-
-    // choir — two straight riser rows at the back
-    [[-3.4, 0.3, 8, 5.4], [-4.7, 0.6, 8, 6.0]].forEach(function(row){
-      for (var i = 0; i < row[2]; i++){
-        var x = -row[3] + (2*row[3]) * (i/(row[2]-1));
-        var fig = makeFigure(mats.choir, 0.95);
-        var book = new THREE.Mesh(G("book", function(){ return new THREE.BoxGeometry(0.26, 0.18, 0.06); }), silverMat);
-        book.position.set(0, 0.92, 0.26); book.rotation.x = -0.5; fig.add(book);
-        placeFigure("choir", fig, x, row[0], row[1], C.x, C.z, {});
-        reg("choir", x, row[0]);
-      }
-    });
-
-    // conductor
-    (function(){
-      var fig = makeFigure(mats.about, 1.2);
-      batonArm = addArm(fig, 0.5, darkMat);
-      var baton = new THREE.Mesh(G("baton", function(){ return new THREE.CylinderGeometry(0.012, 0.012, 0.5, 5); }), brassMat);
-      baton.position.y = -0.52; batonArm.add(baton);
-      placeFigure("about", fig, 0, 4.4, 0.4, 0, 0, { arm:batonArm, armBase:-0.7, armAmp:0.5, armSpeed:Math.PI/BEAT });
-      reg("about", 0, 4.4);
-    })();
-
-    // audience — two dark rows facing the stage
-    [[8.6, 9, 7.2], [9.9, 8, 7.8]].forEach(function(row){
-      for (var i = 0; i < row[1]; i++){
-        var x = -row[2] + (2*row[2]) * (i/(row[1]-1));
-        var fig = makeFigure(mats.social, 0.9);
-        placeFigure("social", fig, x, row[0], 0, 0, 0, {});
-        reg("social", x, row[0]);
-      }
-    });
-
-    // spotlight rings per section
-    SECTIONS.forEach(function(s){
-      if (s.id === "choir") return; // the risers would hide a floor ring; the choir glows instead
-      var pos = secState[s.id].positions;
-      var minX=1e9,maxX=-1e9,minZ=1e9,maxZ=-1e9;
-      pos.forEach(function(p){
-        minX=Math.min(minX,p[0]); maxX=Math.max(maxX,p[0]);
-        minZ=Math.min(minZ,p[1]); maxZ=Math.max(maxZ,p[1]);
-      });
-      var cxr=(minX+maxX)/2, czr=(minZ+maxZ)/2;
-      var rad=Math.max((maxX-minX)/2,(maxZ-minZ)/2,0.9)+0.9;
-      var ring=new THREE.Mesh(new THREE.CircleGeometry(rad,32),
-        new THREE.MeshBasicMaterial({ color:0xe6b655, transparent:true, opacity:0 }));
-      ring.rotation.x=-Math.PI/2;
-      ring.position.set(cxr,0.02,czr);
-      scene.add(ring);
-      rings[s.id]=ring;
-      secState[s.id].ring=ring;
-      secState[s.id].center={x:cxr,z:czr};
-    });
-  }
-
-  function sizeRenderer(){
-    if (!renderer) return;
-    var w = container.clientWidth;
-    var h = Math.max(340, Math.min(560, Math.round(w * 0.56)));
-    container.style.height = h + "px";
-    renderer.setSize(w, h);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
-  addEventListener("resize", sizeRenderer);
-
-  /* ----- interaction ----- */
-  var raycaster = window.THREE ? new THREE.Raycaster() : null;
-  var mouseV = window.THREE ? new THREE.Vector2() : null;
-
-  function pickSection(ev){
-    var rect = renderer.domElement.getBoundingClientRect();
-    mouseV.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
-    mouseV.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(mouseV, camera);
-    var hits = raycaster.intersectObjects(clickables, false);
-    return hits.length ? hits[0].object.userData.secId : null;
-  }
-  function setCaption(def){
-    if (def){ capName.textContent = def.name; capRole.textContent = def.role; }
-    else { capName.textContent = restName; capRole.textContent = restRole; }
-  }
-  function visit(id){
-    playQuick(id);
-    var trackId = id === "about" ? "about" : id;
-    var sec = document.getElementById(trackId);
-    if (sec){
-      setTimeout(function(){
-        sec.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
-        sec.classList.add("lit");
-        setTimeout(function(){ sec.classList.remove("lit"); }, 1800);
-      }, 420);
-    }
-    var st = secState[id];
-    if (st){ st.flash = performance.now() / 1000 + 1.6; }
-  }
-
-  /* ----- animation loop ----- */
-  function nowCtxTime(){
-    return performance.now() / 1000 - perfOffset;
-  }
-  function animate(){
-    var t = performance.now() / 1000;
-    var ct = playing ? nowCtxTime() : -1;
-
-    SECTIONS.forEach(function(s){
-      var st = secState[s.id];
-      var active = 0;
-      if (hovered === s.id) active = 1;
-      if (st.flash && t < st.flash) active = 1;
-      var wl = windows[s.id];
-      if (playing && wl){
-        for (var wi = 0; wi < wl.length; wi++){
-          if (ct >= wl[wi][0] && ct <= wl[wi][1]){ active = 1; break; }
-        }
-      }
-      st.a += (active - st.a) * 0.08;
-      if (st.ring) st.ring.material.opacity = st.a * 0.22;
-    });
-
-    players.forEach(function(p){
-      var a = secState[p.sec].a;
-      p.group.rotation.z = Math.sin(t * 1.3 + p.phase) * (0.02 + 0.05 * a);
-      if (p.head) p.head.position.y = p.headBase + Math.sin(t * 2 + p.phase) * (0.01 + 0.03 * a);
-      if (p.arm && p.armAmp){
-        var sgn = p.altSign || 1;
-        p.arm.rotation.z = p.armBase + sgn * Math.sin(t * p.armSpeed + p.phase) * p.armAmp * (0.15 + 0.85 * a);
-      }
-    });
-
-    // section glow
-    SECTIONS.forEach(function(s){
-      var st = secState[s.id];
-      var mat = st.mat;
-      if (!mat){
-        // find one robe material lazily
-        for (var i = 0; i < players.length; i++){
-          if (players[i].sec === s.id){ st.mat = players[i].group.children[0].material; break; }
-        }
-        mat = st.mat;
-      }
-      if (mat) mat.emissiveIntensity = st.a * 0.55;
-    });
-
-    if (!reduced){
-      camera.position.set(Math.sin(t * 0.08) * 1.4, 8.6, 15.6);
-    } else {
-      camera.position.set(0, 8.6, 15.6);
-    }
-    camera.lookAt(0, 1.0, 0.5);
-
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
-
-  /* ----- boot ----- */
-  var threeOK = initThree();
-  if (threeOK){
-    renderer.domElement.addEventListener("pointermove", function(ev){
-      var id = pickSection(ev);
-      if (id !== hovered){
-        hovered = id;
-        setCaption(id ? secById[id] : null);
-        renderer.domElement.style.cursor = id ? "pointer" : "default";
-      }
-    });
-    renderer.domElement.addEventListener("click", function(ev){
-      var id = pickSection(ev);
-      if (id) visit(id);
-    });
-    animate();
-  } else {
-    container.style.display = "none";
-    capName.textContent = "The stage needs WebGL";
-    capRole.textContent = "Your browser can't show the 3D hall — the programme below is the menu, and the overture still plays.";
-  }
-
-  addEventListener("keydown", function(ev){
-    if (ev.repeat || ev.metaKey || ev.ctrlKey || ev.altKey) return;
-    var tag = (document.activeElement && document.activeElement.tagName) || "";
-    if (tag === "INPUT" || tag === "TEXTAREA") return;
-    var def = SECTIONS.filter(function(s){ return s.key === ev.key; })[0];
-    if (def){
-      playQuick(def.id);
-      var st = secState[def.id];
-      if (st) st.flash = performance.now() / 1000 + 1.6;
-      setCaption(def);
-    }
-  });
-
-  /* veil */
-  var veil = document.getElementById("veil");
-  function dropVeil(){
-    veil.classList.add("gone");
-    setTimeout(function(){ veil.hidden = true; }, 950);
-  }
-  document.getElementById("startBtn").addEventListener("click", function(){
-    dropVeil();
-    startSymphony();
-  });
-  document.getElementById("skipBtn").addEventListener("click", dropVeil);
-
-  encoreBtn.addEventListener("click", function(){ if (playing) stopSymphony(); else startSymphony(); });
-
-  /* sound toggle */
-  var toggle = document.getElementById("soundToggle");
-  var label = document.getElementById("soundLabel");
-  toggle.addEventListener("click", function(){
-    soundOn = !soundOn;
-    toggle.classList.toggle("off", !soundOn);
-    toggle.setAttribute("aria-pressed", String(soundOn));
-    label.textContent = soundOn ? "Sound on" : "Sound off";
-    if (ctx && master) master.gain.value = soundOn ? 0.5 : 0;
-    if (soundOn) ensureCtx();
-  });
-})();
-</script>
 
 </body>
 </html>
