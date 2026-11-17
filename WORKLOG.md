@@ -18,9 +18,22 @@
   to GitHub as a private repo `hanselius.dev` (flip to public when enabling
   GitHub Pages).
 
+## 2026-11-16
+- Hansel reviewed the 3D orchestra concept and retired it. Nothing deleted: the
+  whole page moved to `archive/overture/index.html`, stamped (veil + page
+  banner) with his requested epitaph: "This would've been my website if my
+  creativity had wings like that of a dog." The claude.ai prototype artifact
+  shows the same archived version. Root `index.html` is now a small
+  intermission page linking to the archive.
+- New direction (strategy pending Hansel's approval before any build): a
+  dual-intent site. **Mode A "Apollo"** — professional: skills, journey, the
+  app and website building. **Mode B "Bacchus"** — creative: writing music,
+  choir, cooking, swimming. The two modes are to be operated very distinctly.
+
 ### Open items
-- Replace placeholder copy in all eight sections with Hansel's real content.
+- Approve/adjust the Apollo + Bacchus implementation strategy, then build.
+- Content needed from Hansel for Apollo: real skills, roles, education,
+  project write-ups (Chatter, JamClean), links; for Bacchus: his stories.
 - Real social links.
-- Tune the synth orchestra (verdict pending from Hansel: majestic vs chiptune).
 - Decide final name/domain ("hanselius.dev" is the working title).
 - Eventually: enable GitHub Pages, then custom domain.
