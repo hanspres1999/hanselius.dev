@@ -99,3 +99,5 @@
 7. Decide final name / custom domain ("hanselius.dev" is a working title).
 8. Later: free backend (Flask assumed), mobile dashboard app, wedding 2027
    site — specced in the Master Plan doc.
+
+- Added a visible "Work in progress" notice at the top of the site (17 Nov).

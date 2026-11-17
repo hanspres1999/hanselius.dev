@@ -55,6 +55,18 @@ a:focus-visible, button:focus-visible{outline:2px solid var(--accent); outline-o
 }
 .slot svg{display:block; margin:0 auto 8px; stroke:#8a7a3e; fill:none; stroke-width:1.6; stroke-linecap:round}
 
+/* work-in-progress notice */
+.wip{
+  margin-top:18px;
+  display:flex; gap:10px; align-items:flex-start;
+  background:var(--todo-bg); border:1px solid var(--todo-line); border-radius:12px;
+  padding:10px 14px; font-size:14.5px; color:#6e5716;
+}
+.wip .dot{
+  flex:none; width:9px; height:9px; border-radius:50%;
+  background:var(--todo-line); margin-top:7px;
+}
+
 /* header */
 header.site{
   padding:26px 0 0; display:flex; justify-content:space-between; align-items:baseline;
@@ -181,6 +193,8 @@ html{scroll-behavior:smooth}
   </aside>
 
   <div class="col">
+
+    <p class="wip" role="note"><span class="dot" aria-hidden="true"></span><span><strong>Work in progress.</strong> This site is being built in public: some details are still placeholders (marked like <span class="todo">this</span>) and more is on the way.</span></p>
 
     <header class="site">
       <a class="wordmark" href="#">Hansel Saldanha</a>
