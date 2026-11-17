@@ -93,6 +93,16 @@ header.site{justify-content:flex-end}
 .totop:hover{color:var(--accent); border-color:var(--accent)}
 .col main > section.intro{padding-top:46px}
 .col main > footer{margin:14px 0 0; padding:16px 30px; border-top:none}
+.col main > p.orca-q{
+  margin:14px 0 0; padding:18px 30px; text-align:center;
+  font-family:var(--display); font-weight:500; font-style:italic; font-size:20px;
+  background:var(--panel);
+  -webkit-backdrop-filter:blur(10px) saturate(1.1);
+  backdrop-filter:blur(10px) saturate(1.1);
+  border-radius:22px;
+  box-shadow:0 20px 60px -30px rgba(10,14,30,.45);
+  transition:background-color .7s ease, color .7s ease;
+}
 .col hr.rule{display:none}
 .vista{height:34vh}
 @media (max-width:560px){
@@ -480,6 +490,8 @@ html{scroll-behavior:smooth}
           <a href="https://www.linkedin.com/in/hanspres1999/">LinkedIn <span class="todo" style="margin-left:4px">verify</span></a>
         </div>
       </section>
+
+      <p class="orca-q">Did you spot the orca in the Bay?</p>
 
       <footer>
         First draft, built in public. &middot; <span class="version">v1126.17</span>

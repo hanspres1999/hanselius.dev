@@ -107,6 +107,7 @@
 - Archive section replaced by a hover dropdown in the menu (Overture, Gate,
   Study).
 - README updated to match (scenery, versioning).
+- Closing line under Contact: "Did you spot the orca in the Bay?"
 
 ## PRIORITY TO-DO (single source of truth — keep current)
 1. Fill the draft's todo tags: headline and target roles, confirm Seattle,
