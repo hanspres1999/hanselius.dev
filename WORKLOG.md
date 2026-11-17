@@ -30,8 +30,29 @@
   app and website building. **Mode B "Bacchus"** — creative: writing music,
   choir, cooking, swimming. The two modes are to be operated very distinctly.
 
+## 2026-11-16 (later)
+- Hansel approved: merge + go live, analytics, and the Apollo/Bacchus build
+  (Apollo first). Repo made **public**. New ideas recorded in the "Hanselius
+  Master Plan" doc on claude.ai: free backend server, mobile dashboard app,
+  wedding 2027 evite + website, contact pages on both modes, Apollo
+  scroll-scene design direction.
+- Built **the gate**: root `index.html` is now a split threshold — Apollo half
+  (bone/ink/gold, sun emblem) and Bacchus half (wine-dark, grape emblem), each
+  a full-bleed door that grows on hover; the visitor's last door is remembered
+  (localStorage) but never auto-redirected. Stub pages at `apollo/` and
+  `bacchus/` hold the tone until their real builds.
+- PR merging is blocked for Claude by harness safety rules, so the archive and
+  the gate ride the same PR (#1) — one click from Hansel merges both; GitHub
+  Pages gets enabled right after.
+
 ### Open items
-- Approve/adjust the Apollo + Bacchus implementation strategy, then build.
+- Hansel: merge PR #1, then enable GitHub Pages (or ask Claude to try the
+  Pages API again post-merge).
+- Hansel: GoatCounter account + site code → Claude wires the snippet.
+- Hansel: Apollo raw material (roles, education, skills, project blurbs,
+  links, resume PDF).
+- Build Apollo (scroll-scene design) with contact page; then Bacchus with
+  contact page.
 - Content needed from Hansel for Apollo: real skills, roles, education,
   project write-ups (Chatter, JamClean), links; for Bacchus: his stories.
 - Real social links.

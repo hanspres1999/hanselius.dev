@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apollo — Hansel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=Outfit:wght@400;500;600&display=swap">
+<style>
+/* Apollo: light, precise, typographic. This is a stub until the scroll-scene build. */
+:root{
+  --bg:#f1ede3; --ink:#211d2b; --muted:#6f6880; --gold:#9a7920; --line:#ddd5c4;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Outfit",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  min-height:100vh; display:grid; place-items:center;
+  padding:24px max(16px, env(safe-area-inset-left,0px)); line-height:1.6;
+}
+main{max-width:34em; text-align:center}
+.eyebrow{font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin:0 0 14px}
+h1{font-family:"Fraunces",Georgia,serif; font-weight:640; font-size:clamp(34px,7vw,56px); margin:0 0 12px; line-height:1.05}
+p{color:var(--muted); margin:0 0 14px}
+a{color:var(--gold)}
+.rule{border:none; border-top:1px solid var(--line); margin:26px auto; width:120px}
+.nav{font-size:13.5px; display:flex; gap:18px; justify-content:center; flex-wrap:wrap}
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Apollo &middot; In composition</p>
+  <h1>The professional record</h1>
+  <p>Skills, shipped apps, and the journey &mdash; scored for scroll, arriving movement by movement. Until then, the raw material: <a href="https://github.com/hanspres1999">github.com/hanspres1999</a>.</p>
+  <p>Contact page arrives with the first movement.</p>
+  <hr class="rule">
+  <nav class="nav">
+    <a href="../">&#8592; The gate</a>
+    <a href="../bacchus/">Off the record &#8594;</a>
+  </nav>
+</main>
+</body>
+</html>

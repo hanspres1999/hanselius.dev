@@ -4,39 +4,150 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hanselius.dev</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=Outfit:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,640;1,9..144,500&family=Outfit:wght@400;500;600&display=swap">
 <style>
-/* Interim page while the two-mode site (Apollo / Bacchus) is designed */
+/* The gate: one threshold, two worlds. Each half is committed to its own palette. */
 :root{
-  --bg:#0d0b16;
-  --surface:#171329;
-  --line:#2b2443;
-  --fg:#f0ebe1;
-  --muted:#a99fbd;
-  --accent:#e6b655;
-  color-scheme: dark;
+  /* Apollo half */
+  --ap-bg:#f1ede3; --ap-ink:#211d2b; --ap-muted:#6f6880; --ap-gold:#9a7920;
+  /* Bacchus half */
+  --ba-bg:#150a16; --ba-ink:#f0e6ea; --ba-muted:#a08fa6; --ba-wine:#c25a7c;
+  --display:"Fraunces",Georgia,serif;
+  --body:"Outfit",-apple-system,"Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
-  margin:0; background:var(--bg); color:var(--fg);
-  font-family:"Outfit",-apple-system,"Helvetica Neue",Arial,sans-serif;
-  min-height:100vh; display:grid; place-items:center;
-  padding:24px 16px; text-align:center; line-height:1.6;
+  margin:0; font-family:var(--body); line-height:1.5;
+  display:flex; flex-direction:row; background:#101016;
 }
-h1{font-family:"Fraunces",Georgia,serif; font-weight:640; font-size:clamp(40px,9vw,72px); margin:0 0 10px}
-p{color:var(--muted); max-width:34em; margin:0 auto}
-.eyebrow{font-size:12px; letter-spacing:.22em; text-transform:uppercase; margin-bottom:16px}
-a{color:var(--accent)}
-.card{border:1px solid var(--line); background:var(--surface); border-radius:14px; padding:28px 26px}
-.foot{margin-top:22px; font-size:13px; font-style:italic}
+.half{
+  flex:1 1 0; min-width:0; display:flex; align-items:center; justify-content:center;
+  text-decoration:none; position:relative; overflow:hidden;
+  padding:48px max(20px, env(safe-area-inset-left,0px)) 72px;
+  transition:flex-grow .45s cubic-bezier(.22,.8,.3,1);
+}
+.half:hover, .half:focus-visible{flex-grow:1.45}
+.half .inner{text-align:center; max-width:30em}
+.emblem{display:block; margin:0 auto 22px; transition:transform .45s ease}
+.half:hover .emblem, .half:focus-visible .emblem{transform:rotate(8deg) scale(1.08)}
+.half .mode{
+  font-family:var(--display); font-weight:640;
+  font-size:clamp(40px,6vw,64px); line-height:1; margin:0 0 6px;
+}
+.half .epithet{
+  font-size:12px; letter-spacing:.24em; text-transform:uppercase; margin:0 0 16px;
+}
+.half .blurb{font-size:16px; margin:0 auto; max-width:24em}
+.half .enter{
+  display:inline-block; margin-top:26px; font-weight:600; font-size:14px;
+  letter-spacing:.08em; text-transform:uppercase;
+  border:1.5px solid currentColor; border-radius:999px; padding:10px 24px;
+}
+.apollo{background:var(--ap-bg); color:var(--ap-ink)}
+.apollo .epithet{color:var(--ap-gold)}
+.apollo .blurb{color:var(--ap-muted)}
+.apollo .enter{color:var(--ap-gold)}
+.bacchus{background:var(--ba-bg); color:var(--ba-ink)}
+.bacchus .mode{font-style:italic}
+.bacchus .epithet{color:var(--ba-wine)}
+.bacchus .blurb{color:var(--ba-muted)}
+.bacchus .enter{color:var(--ba-wine)}
+.half:focus-visible{outline:3px solid currentColor; outline-offset:-3px}
+
+.masthead{
+  position:fixed; top:14px; left:0; right:0; text-align:center; pointer-events:none; z-index:2;
+}
+.masthead .name{
+  display:inline-block; font-family:var(--display); font-weight:640; font-size:15px;
+  letter-spacing:.12em; color:#ffffff; mix-blend-mode:difference;
+}
+.lastdoor{
+  position:fixed; top:40px; left:0; right:0; text-align:center; z-index:2; font-size:12.5px;
+}
+.lastdoor a{color:#ffffff; mix-blend-mode:difference; text-decoration:underline}
+.footline{
+  position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); left:0; right:0;
+  text-align:center; z-index:2; font-size:12px;
+}
+.footline a{color:#ffffff; mix-blend-mode:difference; text-decoration:underline}
+
+@media (max-width:700px){
+  body{flex-direction:column}
+  .half{padding-top:64px; padding-bottom:40px}
+  .half:hover, .half:focus-visible{flex-grow:1.18}
+}
+@media (prefers-reduced-motion: reduce){
+  .half, .emblem{transition:none}
+}
 </style>
 </head>
 <body>
-<div class="card">
-  <p class="eyebrow">Intermission</p>
-  <h1>hanselius.dev</h1>
-  <p>The next movement is in rehearsal: one site, two faces &mdash; <strong>Apollo</strong> for the professional record, <strong>Bacchus</strong> for everything else worth doing.</p>
-  <p class="foot">Previously playing: <a href="archive/overture/">the Overture</a>.</p>
+
+<div class="masthead"><span class="name">HANSELIUS.DEV</span></div>
+<div class="lastdoor" id="lastdoor" hidden></div>
+
+<a class="half apollo" href="apollo/" aria-label="Apollo — the professional record">
+  <div class="inner">
+    <svg class="emblem" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+      <g stroke="#9a7920" stroke-width="2.5" fill="none" stroke-linecap="round">
+        <circle cx="32" cy="32" r="11" fill="#9a7920" fill-opacity=".14"/>
+        <line x1="32" y1="6"  x2="32" y2="14"/><line x1="32" y1="50" x2="32" y2="58"/>
+        <line x1="6"  y1="32" x2="14" y2="32"/><line x1="50" y1="32" x2="58" y2="32"/>
+        <line x1="13.6" y1="13.6" x2="19.3" y2="19.3"/><line x1="44.7" y1="44.7" x2="50.4" y2="50.4"/>
+        <line x1="13.6" y1="50.4" x2="19.3" y2="44.7"/><line x1="44.7" y1="19.3" x2="50.4" y2="13.6"/>
+      </g>
+    </svg>
+    <p class="epithet">The professional record</p>
+    <h1 class="mode">Apollo</h1>
+    <p class="blurb">Apps shipped, skills sharpened, a career kept in strict time. For recruiters and the curious-in-a-hurry.</p>
+    <span class="enter">Enter</span>
+  </div>
+</a>
+
+<a class="half bacchus" href="bacchus/" aria-label="Bacchus — the creative disorder">
+  <div class="inner">
+    <svg class="emblem" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+      <g fill="#c25a7c">
+        <circle cx="32" cy="22" r="6.5" fill-opacity=".9"/>
+        <circle cx="23" cy="31" r="6.5" fill-opacity=".75"/>
+        <circle cx="41" cy="31" r="6.5" fill-opacity=".75"/>
+        <circle cx="27.5" cy="41" r="6.5" fill-opacity=".6"/>
+        <circle cx="36.5" cy="41" r="6.5" fill-opacity=".6"/>
+        <circle cx="32" cy="50" r="6.5" fill-opacity=".45"/>
+      </g>
+      <path d="M32 15 q 2 -8 10 -9" stroke="#c25a7c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </svg>
+    <p class="epithet">The creative disorder</p>
+    <h1 class="mode">Bacchus</h1>
+    <p class="blurb">Music written and sung, water swum, food worth burning twice. Everything that doesn't fit on a resume.</p>
+    <span class="enter">Enter</span>
+  </div>
+</a>
+
+<div class="footline">
+  <a href="archive/overture/">From the archive: the Overture</a>
 </div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "hanselius-mode";
+  document.querySelectorAll(".half").forEach(function(a){
+    a.addEventListener("click", function(){
+      try { localStorage.setItem(KEY, a.classList.contains("apollo") ? "apollo" : "bacchus"); } catch(e){}
+    });
+  });
+  try {
+    var last = localStorage.getItem(KEY);
+    if (last === "apollo" || last === "bacchus"){
+      var el = document.getElementById("lastdoor");
+      var name = last === "apollo" ? "Apollo" : "Bacchus";
+      el.innerHTML = "Last visit: <a href=\"" + last + "/\">continue to " + name + " →</a>";
+      el.hidden = false;
+    }
+  } catch(e){}
+})();
+</script>
 </body>
 </html>
