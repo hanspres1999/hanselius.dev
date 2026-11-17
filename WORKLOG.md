@@ -72,33 +72,30 @@
 - Draft preview artifact: https://claude.ai/artifact/E3266rGY5vkvFaPBS2GvCg
 - Master Plan doc: https://claude.ai/artifact/VGyb54MerKWxTDCNiX7Nby
 
-### PRIORITY TO-DO (in order)
-1. Hansel: merge PR #1 (archive + gate + draft site), then enable GitHub
-   Pages (Settings → Pages → main) → site live at
-   hanspres1999.github.io/hanselius.dev. Claude may retry the Pages API.
-2. Hansel reviews the draft; fill todo chips: headline/roles, Seattle
-   confirm, intro para, contact method, LinkedIn verify.
-3. Jam Clean screenshots + contribution details; add to project card.
-4. Decide: include SSRN paper or drop the note.
-5. Life stories + photos (one per interest to start); photo-frame set too.
-6. GoatCounter account (code → Claude wires snippet on every page).
-7. Side elements / parallax / click-sketches (after content is real).
-8. Later queue: Bacchus-style creative expansion, backend (Flask), mobile
-   dashboard app, wedding 2027 site — all specced in the Master Plan doc.
+## 2026-11-17
+- Hansel merged PR #1 (draft site + all archives) into `main`.
+- Claude turned on GitHub Pages (deploy from `main`, root). First deploy
+  succeeded; checked the live homepage (title "Hansel Saldanha") and
+  `/archive/overture/` both return 200.
+  **Live: https://hanspres1999.github.io/hanselius.dev/**
+- README rewritten for the current site (it still described the orchestra);
+  this WORKLOG's to-do lists merged into one priority list below.
+- Workflow note: Hansel wants plain commits on `main`, not PRs. This
+  background session can only commit to a side branch, so changes reach `main`
+  via a one-line merge Hansel runs. Adding
+  `{"worktree":{"bgIsolation":"none"}}` to `.claude/settings.json` lets
+  future sessions commit to `main` directly.
 
-### Open items
-- Hansel: bring back inspiration links; then decide act IV direction
-  (3D rebuild vs refined simplicity). [superseded by the brief's direction —
-  keep only if he still wants the showpiece later]
-- Hansel: merge PR #1, then enable GitHub Pages (or ask Claude to try the
-  Pages API again post-merge).
-- Hansel: GoatCounter account + site code → Claude wires the snippet.
-- Hansel: Apollo raw material (roles, education, skills, project blurbs,
-  links, resume PDF).
-- Build Apollo (scroll-scene design) with contact page; then Bacchus with
-  contact page.
-- Content needed from Hansel for Apollo: real skills, roles, education,
-  project write-ups (Chatter, JamClean), links; for Bacchus: his stories.
-- Real social links.
-- Decide final name/domain ("hanselius.dev" is the working title).
-- Eventually: enable GitHub Pages, then custom domain.
+## PRIORITY TO-DO (single source of truth — keep current)
+1. Fill the draft's todo tags: headline and target roles, confirm Seattle,
+   intro paragraph, public contact method, verify LinkedIn link.
+   (Optional: hide todo tags on the live site until confirmed.)
+2. Jam Clean: screenshots and Hansel's contribution details.
+3. Decide whether to keep the 2020 SSRN paper note.
+4. Life: one story + one photo per interest (choir, cooking, swimming,
+   reading). Photo-frame picture set if the study concept returns.
+5. GoatCounter account → Claude adds the analytics snippet.
+6. Side elements, parallax, click-sketches — after content is real.
+7. Decide final name / custom domain ("hanselius.dev" is a working title).
+8. Later: free backend (Flask assumed), mobile dashboard app, wedding 2027
+   site — specced in the Master Plan doc.
