@@ -87,6 +87,27 @@
   future sessions commit to `main` directly.
 - Added a visible "Work in progress" notice at the top of the site (17 Nov).
 
+## 2026-11-17 — release v1126.17
+- Versioning starts: the footer shows `vMMYY.DD` (date of the push), updated
+  with every push, at most one version per day (Hansel's rule, until he says
+  otherwise).
+- Seattle scenery behind the page: scroll position runs the time of day from
+  dawn (top) to night (bottom) — sun arc and sunset into Elliott Bay, moonrise
+  in the right margin, stars, lit windows, the Space Needle beacon. Text sits
+  on frosted cards that switch to dark glass after sunset.
+- The reading column is split into cards with three open gaps showing the
+  scene (gaps then shortened by 35%).
+- Living scene: birds about every 30 s, a helicopter every 1–2 min, constant
+  waves, an orca breaching every 40–80 s; about a third of flights pass in
+  front of the page for depth.
+- Weather: a 90 s cycle, with 30 s of rain under heavy moving cloud and 60 s
+  dry. The page opens mid-rain.
+- Name changed to Hansel Presley Saldanha (heading and page title); removed
+  from the menu bar. Floating back-to-top button added.
+- Archive section replaced by a hover dropdown in the menu (Overture, Gate,
+  Study).
+- README updated to match (scenery, versioning).
+
 ## PRIORITY TO-DO (single source of truth — keep current)
 1. Fill the draft's todo tags: headline and target roles, confirm Seattle,
    intro paragraph, public contact method, verify LinkedIn link.

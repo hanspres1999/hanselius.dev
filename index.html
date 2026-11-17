@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hansel Saldanha</title>
+<title>Hansel Presley Saldanha</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=Outfit:wght@400;500;600&display=swap">
 <style>
 /* Simple first site, per docs/website-brief.md: readable centre column, side slots reserved for later. Committed light look. */
@@ -54,6 +54,62 @@ a:focus-visible, button:focus-visible{outline:2px solid var(--accent); outline-o
   font-size:12.5px; line-height:1.45; padding:12px 14px; text-align:center;
 }
 .slot svg{display:block; margin:0 auto 8px; stroke:#8a7a3e; fill:none; stroke-width:1.6; stroke-linecap:round}
+
+/* ---------- Seattle sky: fixed scenery whose time of day follows the scroll ---------- */
+:root{
+  --panel: rgba(250,248,243,.90);
+}
+#scene{position:fixed; inset:0; z-index:0; pointer-events:none}
+#scene svg{display:block; width:100%; height:100%}
+.page{position:relative; z-index:1}
+#fore{position:fixed; inset:0; z-index:3; pointer-events:none}
+#fore svg{display:block; width:100%; height:100%}
+/* the reading column is a stack of separate cards, with open "vistas" between some of them */
+.col{padding-block:10px 40px}
+header.site, .col main > section, .col main > footer{
+  background:var(--panel);
+  -webkit-backdrop-filter:blur(10px) saturate(1.1);
+  backdrop-filter:blur(10px) saturate(1.1);
+  border-radius:22px;
+  box-shadow:0 20px 60px -30px rgba(10,14,30,.45);
+  transition:background-color .7s ease, color .7s ease;
+}
+header.site{margin-top:12px; padding:14px 24px}
+.col main > section{padding:34px 30px 26px; margin-top:14px}
+header.site{justify-content:flex-end}
+/* floating back-to-top button, shown once the visitor is a little way down */
+.totop{
+  position:fixed; z-index:6;
+  right:max(18px, env(safe-area-inset-right, 0px));
+  bottom:calc(env(safe-area-inset-bottom, 0px) + 18px);
+  width:46px; height:46px; border-radius:50%;
+  display:grid; place-items:center; cursor:pointer;
+  background:var(--surface); color:var(--ink); border:1px solid var(--line);
+  box-shadow:0 10px 30px -12px rgba(10,14,30,.5);
+  opacity:0; transform:translateY(10px); pointer-events:none;
+  transition:opacity .3s ease, transform .3s ease, background-color .7s ease;
+}
+.totop.show{opacity:1; transform:none; pointer-events:auto}
+.totop:hover{color:var(--accent); border-color:var(--accent)}
+.col main > section.intro{padding-top:46px}
+.col main > footer{margin:14px 0 0; padding:16px 30px; border-top:none}
+.col hr.rule{display:none}
+.vista{height:34vh}
+@media (max-width:560px){
+  header.site{padding:12px 16px; border-radius:16px}
+  .col main > section{padding:26px 18px 20px; border-radius:16px}
+  .col main > footer{padding:14px 18px; border-radius:16px}
+  .vista{height:26vh}
+}
+body.night{
+  --panel: rgba(14,18,36,.86);
+  --ink:#eef0f6; --muted:#aab2c8; --line:#2f3756;
+  --surface:#1a2038; --accent:#7fc8d3; --gold:#dcb75c;
+  --todo-bg:#2b2716; --todo-line:#a98b2f;
+}
+body.night .todo, body.night .todo-block, body.night .wip, body.night .slot{color:#ead17c}
+body.night .slot svg{stroke:#ead17c}
+body.night .cta{color:#0d1326}
 
 /* work-in-progress notice */
 .wip{
@@ -146,6 +202,29 @@ section p{max-width:38em}
 .life-item p{margin:0 0 8px; color:var(--ink)}
 .life-item .what{color:var(--muted); font-size:15px}
 
+/* archive dropdown in the menu: opens on hover, or on focus/tap */
+header.site{position:relative; z-index:5}
+.navdrop{position:relative; display:inline-block; margin-left:16px}
+.navdrop-btn{
+  font:inherit; font-size:14.5px; font-weight:500; color:var(--muted);
+  background:none; border:none; padding:0; cursor:pointer;
+}
+.navdrop:hover .navdrop-btn, .navdrop:focus-within .navdrop-btn{color:var(--accent)}
+.navdrop-menu{
+  display:none; position:absolute; right:-12px; top:100%;
+  padding-top:8px; min-width:130px;
+}
+.navdrop:hover .navdrop-menu, .navdrop:focus-within .navdrop-menu{display:block}
+.navdrop-menu a{
+  display:block; margin:0; padding:7px 14px;
+  background:var(--surface); color:var(--ink);
+  border-left:1px solid var(--line); border-right:1px solid var(--line);
+}
+.navdrop-menu a:first-child{border-top:1px solid var(--line); border-radius:10px 10px 0 0; padding-top:9px}
+.navdrop-menu a:last-child{border-bottom:1px solid var(--line); border-radius:0 0 10px 10px; padding-bottom:9px}
+nav.site .navdrop-menu a{margin-left:0; color:var(--ink)}
+nav.site .navdrop-menu a:hover{color:var(--accent)}
+
 /* contact + footer */
 .links{display:flex; gap:12px; flex-wrap:wrap; margin-top:14px}
 .links a{
@@ -167,6 +246,79 @@ html{scroll-behavior:smooth}
 
 
 <a class="skip" href="#main">Skip to content</a>
+
+<div id="scene" aria-hidden="true">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop id="skyTop" offset="0%" stop-color="#6a7fb0"/>
+        <stop id="skyBot" offset="100%" stop-color="#f4c09a"/>
+      </linearGradient>
+      <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop id="waterTop" offset="0%" stop-color="#a7b6d0"/>
+        <stop id="waterBot" offset="100%" stop-color="#6d83a8"/>
+      </linearGradient>
+      <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff3c4" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#fff3c4" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#dfe6ff" stop-opacity=".5"/>
+        <stop offset="100%" stop-color="#dfe6ff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#skyGrad)"/>
+    <g id="celestial">
+    <g id="stars" fill="#f3f1e4" opacity="0"></g>
+    <g id="moon" opacity="0">
+      <circle r="160" fill="url(#moonGlow)"/>
+      <circle r="36" fill="#eef0f8"/>
+      <circle cx="-8" cy="-6" r="6" fill="#d5d9e8"/>
+      <circle cx="9" cy="8" r="4" fill="#d5d9e8"/>
+    </g>
+    <g id="sun">
+      <circle r="130" fill="url(#sunGlow)"/>
+      <circle id="sunDisc" r="44" fill="#ffd27a"/>
+    </g>
+    </g>
+    <rect id="overcast" width="1600" height="640" fill="#8a91a3" opacity="0"/>
+    <!-- the Olympic Mountains across the bay -->
+    <path id="mtn" fill="#8d93b4" d="M0 640 L0 590 L70 560 L130 578 L210 520 L270 552 L330 530 L410 486 L470 530 L540 508 L610 540 L690 470 L760 512 L830 492 L900 528 L980 462 L1050 506 L1120 488 L1200 530 L1270 480 L1340 516 L1420 498 L1500 540 L1600 520 L1600 640 Z"/>
+    <g id="snow" fill="#ffffff" opacity=".9">
+      <path d="M210 520 L232 532 L218 536 L200 528 Z"/>
+      <path d="M410 486 L436 502 L418 506 L396 498 Z"/>
+      <path d="M690 470 L716 486 L698 490 L676 484 Z"/>
+      <path d="M980 462 L1006 478 L988 482 L966 476 Z"/>
+      <path d="M1270 480 L1294 494 L1276 498 L1256 492 Z"/>
+    </g>
+    <g id="clouds" fill="#b8bfcc" opacity="0"></g>
+    <!-- Elliott Bay -->
+    <rect y="636" width="1600" height="264" fill="url(#waterGrad)"/>
+    <g id="waves"></g>
+    <g id="seaActors"></g>
+    <g id="moonGlint" stroke="#e8ecff" stroke-width="2" stroke-linecap="round" opacity="0">
+      <line x1="1330" y1="664" x2="1400" y2="664"/>
+      <line x1="1340" y1="682" x2="1390" y2="682"/>
+      <line x1="1348" y1="700" x2="1382" y2="700"/>
+      <line x1="1354" y1="718" x2="1376" y2="718"/>
+    </g>
+    <!-- skyline (built in script) -->
+    <g id="city" fill="#5a6380"></g>
+    <g id="windows" fill="#ffd68a" opacity="0"></g>
+    <circle id="beacon" cx="300" cy="412" r="3.2" fill="#ff5a52" opacity="0"/>
+    <g id="skyActors"></g>
+    <g id="rain" stroke="#dfe5f0" stroke-width="1.3" stroke-linecap="round" opacity="0"></g>
+    <rect id="gloom" width="1600" height="900" fill="#1c2233" opacity="0"/>
+  </svg>
+</div>
+
+<button class="totop" id="toTop" type="button" aria-label="Back to top" tabindex="-1">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 15 V3 M3.5 8.5 L9 3 L14.5 8.5"/></svg>
+</button>
+
+<div id="fore" aria-hidden="true">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice"><g id="foreActors"></g></svg>
+</div>
 
 <div class="page">
 
@@ -197,24 +349,31 @@ html{scroll-behavior:smooth}
     <p class="wip" role="note"><span class="dot" aria-hidden="true"></span><span><strong>Work in progress.</strong> This site is being built in public: some details are still placeholders (marked like <span class="todo">this</span>) and more is on the way.</span></p>
 
     <header class="site">
-      <a class="wordmark" href="#">Hansel Saldanha</a>
       <nav class="site" aria-label="Sections">
         <a href="#work">Work</a>
         <a href="#about">About</a>
         <a href="#life">Life</a>
         <a href="#contact">Contact</a>
+        <div class="navdrop">
+          <button class="navdrop-btn" type="button" aria-haspopup="true">Archive</button>
+          <div class="navdrop-menu">
+            <a href="archive/overture/">Overture</a>
+            <a href="archive/gate/">Gate</a>
+            <a href="archive/study/">Study</a>
+          </div>
+        </div>
       </nav>
     </header>
 
     <main id="main">
 
       <section class="intro">
-        <h1>Hansel Saldanha</h1>
+        <h1>Hansel Presley Saldanha</h1>
         <p class="headline">I coordinate infrastructure projects by day and build iOS apps by conviction. <span class="todo">headline &amp; desired roles &mdash; confirm wording</span></p>
         <p>Based in Seattle <span class="todo">confirm</span>. This is the short version of me: the longer versions are below &mdash; the professional one first, the personal one given equal room, as it should be.</p>
       </section>
 
-      <hr class="rule">
+      <div class="vista" aria-hidden="true"></div>
 
       <section id="work" aria-label="Work">
         <p class="kicker">Work</p>
@@ -266,7 +425,7 @@ html{scroll-behavior:smooth}
         <p><span class="todo">short introduction in your own words &mdash; to write together</span></p>
       </section>
 
-      <hr class="rule">
+      <div class="vista" aria-hidden="true"></div>
 
       <section id="life" aria-label="Life">
         <p class="kicker">Life</p>
@@ -310,7 +469,7 @@ html{scroll-behavior:smooth}
         </div>
       </section>
 
-      <hr class="rule">
+      <div class="vista" aria-hidden="true"></div>
 
       <section id="contact" aria-label="Contact">
         <p class="kicker">Contact</p>
@@ -323,15 +482,358 @@ html{scroll-behavior:smooth}
       </section>
 
       <footer>
-        First draft, built in public. Earlier experiments live in the archive:
-        <a href="archive/overture/">the Overture</a> &middot;
-        <a href="archive/study/">the Study</a> &middot;
-        <a href="archive/gate/">the Gate</a>.
+        First draft, built in public. &middot; <span class="version">v1126.17</span>
       </footer>
 
     </main>
   </div>
 </div>
+
+<script>
+(function(){
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var $ = function(id){ return document.getElementById(id); };
+  var reduced = false;
+  try { reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){}
+
+  /* back-to-top button */
+  var toTop = $("toTop");
+  function updateTop(){
+    var on = scrollY > 500;
+    toTop.classList.toggle("show", on);
+    toTop.tabIndex = on ? 0 : -1;
+  }
+  addEventListener("scroll", updateTop, { passive:true });
+  updateTop();
+  toTop.addEventListener("click", function(){
+    try { scrollTo({ top:0, behavior: reduced ? "auto" : "smooth" }); } catch(e){ scrollTo(0, 0); }
+  });
+
+  /* deterministic pseudo-random, so the skyline looks the same on every visit */
+  var seed = 7;
+  function rnd(){ seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  function mk(tag, attrs, parent){
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    parent.appendChild(n);
+    return n;
+  }
+
+  /* stars */
+  var stars = $("stars");
+  for (var s = 0; s < 90; s++){
+    mk("circle", { cx:(rnd()*1600).toFixed(0), cy:(rnd()*430).toFixed(0), r:(0.6 + rnd()*1.4).toFixed(1) }, stars);
+  }
+
+  /* skyline: towers left and right of the reading column, the Space Needle on the left */
+  var city = $("city"), wins = $("windows");
+  var towers = [
+    [40,70,170],[115,55,120],[175,60,200],[345,50,150],[400,70,230],[475,55,140],
+    [1100,60,150],[1165,75,260],[1245,55,190],[1305,80,300],[1390,60,210],[1455,70,250],[1530,70,160]
+  ];
+  towers.forEach(function(t){
+    var x = t[0], w = t[1], h = t[2], top = 900 - h;
+    mk("rect", { x:x, y:top, width:w, height:h }, city);
+    for (var wy = top + 14; wy < 890; wy += 16){
+      for (var wx = x + 8; wx < x + w - 8; wx += 12){
+        if (rnd() < 0.42) mk("rect", { x:wx, y:wy, width:5, height:7 }, wins);
+      }
+    }
+  });
+  /* the Space Needle */
+  mk("path", { d:"M288 900 L296 470 L304 470 L312 900 Z" }, city);
+  mk("path", { d:"M270 900 L296 600 L300 600 L280 900 Z" }, city);
+  mk("path", { d:"M330 900 L304 600 L300 600 L320 900 Z" }, city);
+  mk("ellipse", { cx:300, cy:462, rx:44, ry:11 }, city);
+  mk("ellipse", { cx:300, cy:448, rx:26, ry:8 }, city);
+  mk("rect", { x:298, y:414, width:4, height:30 }, city);
+  mk("rect", { x:262, y:459, width:76, height:4 }, wins);
+
+  /* time of day keyframes, by scroll fraction: dawn, day, afternoon, sunset, dusk, night */
+  var K = [0, .25, .55, .72, .85, 1];
+  var C = {
+    skyTop:  ["#6a7fb0","#5e9bd0","#6aa2d0","#4a5590","#1c2348","#070b1f"],
+    skyBot:  ["#f4c09a","#cfe3f0","#e9e0c8","#f29a62","#5d4a78","#141a38"],
+    mtn:     ["#8d93b4","#7e93ad","#8796ab","#6a5f86","#2c2c4e","#141a32"],
+    waterTop:["#a7b6d0","#5f8fb5","#6a93b3","#b07a78","#2a2c52","#0c1228"],
+    waterBot:["#6d83a8","#3d6b92","#46708f","#6d4d66","#1a1c3a","#070b1c"],
+    city:    ["#5a6380","#4b5670","#4e5870","#3a3550","#1a1a2e","#0a0d1a"],
+    sun:     ["#ffb36b","#fff1c2","#ffe39a","#ff8a4a","#ff8a4a","#ff8a4a"]
+  };
+  var SNOW = [.9,.95,.95,.7,.35,.25];
+
+  function hex(h){ return [parseInt(h.substr(1,2),16), parseInt(h.substr(3,2),16), parseInt(h.substr(5,2),16)]; }
+  function seg(p){
+    for (var i = 0; i < K.length - 1; i++){ if (p <= K[i+1]) return [i, (p - K[i]) / (K[i+1] - K[i])]; }
+    return [K.length - 2, 1];
+  }
+  function mixC(arr, p){
+    var g = seg(p), a = hex(arr[g[0]]), b = hex(arr[g[0]+1]), t = g[1];
+    return "rgb(" + Math.round(a[0]+(b[0]-a[0])*t) + "," + Math.round(a[1]+(b[1]-a[1])*t) + "," + Math.round(a[2]+(b[2]-a[2])*t) + ")";
+  }
+  function mixN(arr, p){ var g = seg(p); return arr[g[0]] + (arr[g[0]+1] - arr[g[0]]) * g[1]; }
+  function ramp(p, a, b){ return Math.max(0, Math.min(1, (p - a) / (b - a))); }
+
+  function paint(p){
+    curP = p;
+    $("waves").setAttribute("opacity", (1 - ramp(p, 0.8, 1) * 0.5).toFixed(2));
+    $("skyTop").setAttribute("stop-color", mixC(C.skyTop, p));
+    $("skyBot").setAttribute("stop-color", mixC(C.skyBot, p));
+    $("mtn").setAttribute("fill", mixC(C.mtn, p));
+    $("waterTop").setAttribute("stop-color", mixC(C.waterTop, p));
+    $("waterBot").setAttribute("stop-color", mixC(C.waterBot, p));
+    $("city").setAttribute("fill", mixC(C.city, p));
+    $("snow").setAttribute("opacity", mixN(SNOW, p).toFixed(2));
+    $("sunDisc").setAttribute("fill", mixC(C.sun, p));
+
+    /* the sun arcs left to right and sets into the bay by 74% of the page */
+    var sp = Math.min(1, p / 0.74);
+    var sx = 160 + sp * 1240, sy = 660 - Math.sin(Math.PI * sp) * 500;
+    $("sun").setAttribute("transform", "translate(" + sx.toFixed(1) + "," + sy.toFixed(1) + ")");
+
+    /* the moon rises on the right after sunset */
+    var mp = ramp(p, 0.76, 1);
+    var mx = 1440 - mp * 80, my = 700 - mp * 490;
+    $("moon").setAttribute("transform", "translate(" + mx.toFixed(1) + "," + my.toFixed(1) + ")");
+    $("moon").setAttribute("opacity", ramp(p, 0.76, 0.86).toFixed(2));
+    $("moonGlint").setAttribute("opacity", (ramp(p, 0.88, 1) * 0.7).toFixed(2));
+
+    $("stars").setAttribute("opacity", ramp(p, 0.78, 0.94).toFixed(2));
+    $("windows").setAttribute("opacity", ramp(p, 0.6, 0.8).toFixed(2));
+    $("beacon").setAttribute("opacity", ramp(p, 0.7, 0.8).toFixed(2));
+
+    document.body.classList.toggle("night", p > 0.7);
+  }
+
+  function progress(){
+    var max = document.documentElement.scrollHeight - innerHeight;
+    return max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+  }
+
+  /* ---------- the living scene: waves, birds, helicopters, orcas ---------- */
+  var curP = 0;
+  var sky = $("skyActors"), sea = $("seaActors"), waveG = $("waves"), fore = $("foreActors");
+  var actors = [];
+  function R(a, b){ return a + Math.random() * (b - a); }
+  function ink(){ return curP > 0.8 ? "#0e1224" : (curP > 0.65 ? "#26213a" : "#2b3046"); }
+  function lerpHex(a, b, k){
+    var A = hex(a), B = hex(b);
+    return "rgb(" + Math.round(A[0] + (B[0] - A[0]) * k) + "," + Math.round(A[1] + (B[1] - A[1]) * k) + "," + Math.round(A[2] + (B[2] - A[2]) * k) + ")";
+  }
+
+  /* weather, a 90 s cycle: 30 s of rain under heavy moving cloud, then 60 s dry. The page opens mid-rain. */
+  var weatherCover = 1;
+  var cloudG = $("clouds"), rainG = $("rain"), overcast = $("overcast"), gloom = $("gloom"), celestial = $("celestial");
+  var clouds = [];
+  for (var cl = 0; cl < 16; cl++){
+    var cg = mk("g", {}, cloudG);
+    var cw = R(200, 380);
+    for (var pf = 0; pf < 5; pf++){
+      mk("ellipse", { cx:((pf / 4 - 0.5) * cw * 0.8 + R(-10, 10)).toFixed(1), cy:(R(-14, 6) - (pf === 2 ? 18 : 0)).toFixed(1), rx:R(cw * 0.18, cw * 0.3).toFixed(1), ry:R(22, 40).toFixed(1) }, cg);
+    }
+    clouds.push({ el:cg, x:cl * 125 + R(0, 90), y:R(40, 430), v:R(14, 28) });
+  }
+  var drops = [];
+  for (var dr = 0; dr < 140; dr++){
+    var dl = mk("line", { x1:0, y1:0, x2:-6, y2:22 }, rainG);
+    drops.push({ el:dl, x:Math.random() * 1700, y:Math.random() * 1000, v:R(700, 1000) });
+  }
+  function drawWeather(t){
+    var e = t % 90, first = t < 90, cover = 0, rain = 0;
+    if (first){
+      cover = e < 30 ? 1 : 1 - ramp(e, 30, 36);
+      rain = e < 28 ? 1 : 1 - ramp(e, 28, 30);
+    } else if (e < 39){
+      cover = e < 33 ? ramp(e, 0, 4) : 1 - ramp(e, 33, 39);
+      rain = e < 31 ? ramp(e, 3, 5) : 1 - ramp(e, 31, 33);
+    }
+    weatherCover = cover;
+    var night = ramp(curP, 0.6, 0.85);
+    overcast.setAttribute("fill", lerpHex("#8a91a3", "#161b2c", night));
+    overcast.setAttribute("opacity", (cover * 0.7).toFixed(2));
+    gloom.setAttribute("opacity", (cover * 0.22).toFixed(2));
+    celestial.setAttribute("opacity", (1 - cover * 0.85).toFixed(2));
+    cloudG.setAttribute("opacity", cover.toFixed(2));
+    if (cover > 0.01){
+      cloudG.setAttribute("fill", lerpHex("#b8bfcc", "#262c40", night));
+      clouds.forEach(function(c){
+        var x = (c.x + c.v * t) % 2000 - 200;
+        c.el.setAttribute("transform", "translate(" + x.toFixed(1) + "," + c.y.toFixed(1) + ")");
+      });
+    }
+    rainG.setAttribute("opacity", (rain * 0.55).toFixed(2));
+    if (rain > 0.01){
+      rainG.setAttribute("stroke", night > 0.5 ? "#8f9ab8" : "#dfe5f0");
+      drops.forEach(function(d){
+        var y = (d.y + d.v * t) % 1000 - 60;
+        d.el.setAttribute("transform", "translate(" + d.x.toFixed(0) + "," + y.toFixed(0) + ")");
+      });
+    }
+  }
+
+  /* waves: short strokes drifting across the bay, bigger and faster nearer the viewer */
+  var waves = [];
+  for (var wv = 0; wv < 28; wv++){
+    var wy = 650 + Math.pow(Math.random(), 1.3) * 230;
+    var wl = 14 + (wy - 640) * 0.12;
+    var wel = mk("path", { d:"M0 0 q" + (wl / 2).toFixed(1) + " -4 " + wl.toFixed(1) + " 0", fill:"none", stroke:"#ffffff", "stroke-width":(1 + (wy - 640) / 160).toFixed(2), "stroke-linecap":"round" }, waveG);
+    waves.push({ el:wel, x:Math.random() * 1700, y:wy, v:R(4, 12) * (wy - 600) / 200, ph:Math.random() * 6.28 });
+  }
+  function drawWaves(t){
+    waves.forEach(function(w){
+      var x = (w.x + w.v * t) % 1700 - 50;
+      w.el.setAttribute("transform", "translate(" + x.toFixed(1) + "," + w.y.toFixed(1) + ")");
+      w.el.setAttribute("opacity", (0.18 + 0.14 * Math.sin(t * 0.9 + w.ph)).toFixed(2));
+    });
+  }
+
+  /* a flight of birds; "front" flights cross in front of the page, bigger and closer */
+  function spawnFlock(front){
+    var layer = front ? fore : sky;
+    var dir = Math.random() < 0.5 ? 1 : -1;
+    var n = front ? 3 + Math.floor(R(0, 3)) : 5 + Math.floor(R(0, 4));
+    var scale = front ? R(2.2, 3) : R(0.8, 1.3);
+    var y0 = front ? R(160, 520) : R(110, 330);
+    var dur = front ? R(7, 10) : R(16, 24);
+    var g = mk("g", {}, layer);
+    var birds = [];
+    for (var i = 0; i < n; i++){
+      var row = Math.ceil(i / 2), side = i % 2 ? 1 : -1;
+      var b = mk("path", { d:"M-9 0 Q-4 -6 0 0 Q4 -6 9 0", fill:"none", stroke:ink(), "stroke-width":front ? "1.6" : "2", "stroke-linecap":"round", "stroke-linejoin":"round" }, g);
+      birds.push({ el:b, dx:-row * 16, dy:row * 9 * side + R(-3, 3), ph:R(0, 6.28) });
+    }
+    var start = null;
+    actors.push(function(t){
+      if (start === null) start = t;
+      var k = (t - start) / dur;
+      if (k >= 1){ g.remove(); return false; }
+      var x = dir > 0 ? -150 + k * 1900 : 1750 - k * 1900;
+      var y = y0 + Math.sin(k * 6.28) * 18 + (front ? k * 120 : 0);
+      var sc = front ? scale * (0.8 + k * 0.6) : scale;
+      g.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ") scale(" + (sc * dir).toFixed(2) + "," + sc.toFixed(2) + ")");
+      birds.forEach(function(bd){
+        var f = Math.sin(t * 9 + bd.ph);
+        bd.el.setAttribute("transform", "translate(" + bd.dx + "," + bd.dy.toFixed(1) + ") scale(1," + (0.35 + 0.65 * f).toFixed(2) + ")");
+      });
+      return true;
+    });
+  }
+
+  /* a helicopter, with a spinning rotor and a blinking tail light */
+  function spawnHeli(front){
+    var layer = front ? fore : sky;
+    var dir = Math.random() < 0.5 ? 1 : -1;
+    var scale = front ? 2.6 : R(0.9, 1.2);
+    var y0 = front ? R(200, 480) : R(150, 300);
+    var dur = front ? R(10, 13) : R(30, 42);
+    var g = mk("g", {}, layer);
+    var c = ink();
+    mk("ellipse", { cx:0, cy:0, rx:15, ry:7, fill:c }, g);
+    mk("path", { d:"M-12 -1 L-40 -3 L-40 2 L-12 3 Z", fill:c }, g);
+    mk("path", { d:"M-42 -9 L-38 -9 L-36 3 L-41 3 Z", fill:c }, g);
+    mk("rect", { x:-12, y:9, width:24, height:1.8, fill:c }, g);
+    mk("rect", { x:-6, y:6, width:1.6, height:4, fill:c }, g);
+    mk("rect", { x:5, y:6, width:1.6, height:4, fill:c }, g);
+    mk("rect", { x:-1, y:-11, width:2, height:5, fill:c }, g);
+    var rotor = mk("rect", { x:-26, y:-12, width:52, height:1.8, fill:c }, g);
+    var blink = mk("circle", { cx:-40, cy:-4, r:1.8, fill:"#ff4b4b" }, g);
+    var start = null;
+    actors.push(function(t){
+      if (start === null) start = t;
+      var k = (t - start) / dur;
+      if (k >= 1){ g.remove(); return false; }
+      var x = dir > 0 ? -150 + k * 1900 : 1750 - k * 1900;
+      var y = y0 + Math.sin(t * 1.4) * 4 + (front ? k * 90 : 0);
+      var sc = front ? scale * (0.85 + k * 0.4) : scale;
+      g.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ") scale(" + (sc * dir).toFixed(2) + "," + sc.toFixed(2) + ") rotate(4)");
+      rotor.setAttribute("transform", "scale(" + Math.abs(Math.sin(t * 40)).toFixed(2) + ",1)");
+      blink.setAttribute("opacity", Math.sin(t * 6) > 0.6 ? "1" : "0.1");
+      return true;
+    });
+  }
+
+  /* an orca breaching in Elliott Bay, clipped at its own waterline, with a splash */
+  function spawnOrca(){
+    var zones = [[90, 420], [1180, 1510], [560, 1040]];
+    var z = zones[Math.floor(Math.random() * zones.length)];
+    var x = R(z[0], z[1]);
+    var y = R(690, 800);
+    var s = 0.55 + (y - 640) / 260;
+    var dir = Math.random() < 0.5 ? 1 : -1;
+    var cid = "orcaClip" + Math.floor(Math.random() * 1e9);
+    var clip = mk("clipPath", { id:cid }, sea);
+    mk("rect", { x:x - 200, y:y - 200, width:400, height:200 }, clip);
+    var g = mk("g", { "clip-path":"url(#" + cid + ")" }, sea);
+    var body = mk("g", {}, g);
+    mk("path", { d:"M-42 6 Q-34 -20 -2 -22 Q30 -22 42 -4 Q47 4 40 6 Q8 9 -42 6 Z", fill:"#121521" }, body);
+    mk("path", { d:"M-6 -21 L1 -50 L9 -20 Z", fill:"#121521" }, body);
+    mk("ellipse", { cx:27, cy:-12, rx:6.5, ry:3, fill:"#eef0f4" }, body);
+    mk("path", { d:"M-6 2 Q10 6 24 1 Q12 -2 -6 2 Z", fill:"#eef0f4", opacity:".9" }, body);
+    var splash = mk("ellipse", { cx:x, cy:y, rx:4, ry:1.5, fill:"none", stroke:"#ffffff", "stroke-width":"1.4", opacity:"0" }, sea);
+    var dur = 5.5, start = null;
+    actors.push(function(t){
+      if (start === null) start = t;
+      var k = (t - start) / dur;
+      if (k >= 1){ g.remove(); clip.remove(); splash.remove(); return false; }
+      var rise = Math.sin(Math.PI * k);
+      var ox = (k - 0.5) * 70 * dir;
+      var oy = 26 - rise * 34;
+      var ang = (k - 0.5) * 50;
+      body.setAttribute("transform", "translate(" + (x + ox).toFixed(1) + "," + (y + oy * s).toFixed(1) + ") scale(" + (s * dir).toFixed(2) + "," + s.toFixed(2) + ") rotate(" + ang.toFixed(1) + ")");
+      var sp = k < 0.25 ? k / 0.25 : (k > 0.7 ? (k - 0.7) / 0.3 : -1);
+      if (sp >= 0){
+        splash.setAttribute("rx", (6 + sp * 40 * s).toFixed(1));
+        splash.setAttribute("ry", (1.5 + sp * 6 * s).toFixed(1));
+        splash.setAttribute("opacity", ((1 - sp) * 0.7).toFixed(2));
+        splash.setAttribute("cx", (x + (k > 0.7 ? 35 : -35) * dir).toFixed(1));
+      } else {
+        splash.setAttribute("opacity", "0");
+      }
+      return true;
+    });
+  }
+
+  /* one clock drives everything; a hidden tab skips ahead instead of piling up a backlog */
+  function startActors(){
+    var t0 = performance.now();
+    var nextBird = R(3, 8), nextHeli = R(25, 45), nextOrca = R(10, 20);
+    var last = 0;
+    function frame(now){
+      var t = (now - t0) / 1000;
+      if (t - last > 1){ var gap = t - last; nextBird += gap; nextHeli += gap; nextOrca += gap; }
+      last = t;
+      if (t >= nextBird){
+        if (curP < 0.82 && weatherCover < 0.3) spawnFlock(Math.random() < 0.3);
+        nextBird = t + R(24, 36);
+      }
+      if (t >= nextHeli){ spawnHeli(Math.random() < 0.25); nextHeli = t + R(60, 120); }
+      if (t >= nextOrca){ spawnOrca(); nextOrca = t + R(40, 80); }
+      drawWaves(t);
+      drawWeather(t);
+      actors = actors.filter(function(a){ return a(t); });
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  if (reduced){
+    paint(0.3);
+    drawWaves(0);
+    return;
+  }
+  var queued = false;
+  function onScroll(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ queued = false; paint(progress()); });
+  }
+  addEventListener("scroll", onScroll, { passive:true });
+  addEventListener("resize", onScroll);
+  paint(progress());
+  startActors();
+})();
+</script>
 
 </body>
 </html>
